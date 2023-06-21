@@ -86,7 +86,7 @@ Function Repair-BCD {
 
     # Configure OS entry values
     bcdedit /set {default} device partition=C:
-    bcdedit /set {default} path \windows\system32\boot\winload.exe
+    bcdedit /set {default} path \windows\system32\boot\winload.efi
     bcdedit /set {default} osdevice partition=C:
     bcdedit /set {default} systemroot \Windows
     bcdedit /set {default} detecthal yes
