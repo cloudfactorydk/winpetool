@@ -176,6 +176,7 @@ while ($true) {
             "Inject-VirtIOKBFor2008R2"
             "Mount-Install-WIM"
             "Mount-And-Repair-From-Wim"
+            "Repair-BCD"
             "Reboot"
             "Exit-to-CLI"
 
