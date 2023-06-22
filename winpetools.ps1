@@ -119,7 +119,7 @@ function Repair-BCD {
     $Driveletters = Get-Volume | ? drivetype -ne "CD-ROM" | select -ExpandProperty DriveLetter
     foreach ($Driveletter in $Driveletters) {
 
-        bcdboot $OSPath /s $Driveletter /f UEFI
+        bcdboot $OSPath /s $($Driveletter): /f UEFI
     } 
 }
 
