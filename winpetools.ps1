@@ -47,21 +47,22 @@ function Select-FromStringArray {
 
 function IsUEFI {
     $BootMode = bcdedit | Select-String "path.*efi"
-if ($null -eq $BootMode) {
-    # I think non-uefi is \Windows\System32\winload.exe
-    $BootMode = "Legacy"
-    return $false
-}else {
-    # UEFI is: 
-    #path                    \EFI\MICROSOFT\BOOT\BOOTMGFW.EFI
-    #path                    \Windows\system32\winload.efi
-    $BootMode = "UEFI"
-    return $true
-}
+    if ($null -eq $BootMode) {
+        # I think non-uefi is \Windows\System32\winload.exe
+        $BootMode = "Legacy"
+        return $false
+    }
+    else {
+        # UEFI is: 
+        #path                    \EFI\MICROSOFT\BOOT\BOOTMGFW.EFI
+        #path                    \Windows\system32\winload.efi
+        $BootMode = "UEFI"
+        return $true
+    }
 
-Write-Host "Computer is running in $BootMode boot mode."
+    Write-Host "Computer is running in $BootMode boot mode."
 }
-Function Repair-BCD {
+Function Repair-BCD-OLD {
     # Create a new BCD store
     bcdedit /createstore bcd
 
@@ -85,17 +86,42 @@ Function Repair-BCD {
     bcdedit /default $osGuid
 
     # Configure OS entry values
-    bcdedit /set {default} device partition=C:
-    bcdedit /set {default} path \windows\system32\boot\winload.efi
-    bcdedit /set {default} osdevice partition=C:
-    bcdedit /set {default} systemroot \Windows
-    bcdedit /set {default} detecthal yes
+    bcdedit /set { default } device partition=C:
+    bcdedit /set { default } path \windows\system32\boot\winload.efi
+    bcdedit /set { default } osdevice partition=C:
+    bcdedit /set { default } systemroot \Windows
+    bcdedit /set { default } detecthal yes
 
     # Set the OS entry display order
     bcdedit /displayorder $osGuid /addlast
 
 }
+function Repair-BCD {
+    $DiskpartScript = @()
+    $DiskpartScript += "select vol 0"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 1"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 2"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 3"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 4"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 5"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "exit"
+    $DiskpartScript | diskpart
 
+    $OSDriveletter = Get-DismTargetDir
+    $OSPath = Join-Path -Path $OSDriveletter -ChildPath "Windows"
+
+    $Driveletters = Get-Volume | ? drivetype -ne "CD-ROM" | select -ExpandProperty DriveLetter
+    foreach ($Driveletter in $Driveletters) {
+
+        bcdboot $OSPath /s $Driveletter /f UEFI
+    } 
+}
 
 
 function Inject-VirtIO {
