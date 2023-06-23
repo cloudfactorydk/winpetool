@@ -119,13 +119,14 @@ function Repair-BCD {
     $OSDriveletter = Get-DismTargetDir
     $OSPath = Join-Path -Path $OSDriveletter -ChildPath "Windows"
 
-    Write-Output "Repairing BCD on all volumes"
+    
     #Drivetype 5 is CD-ROM
+    Write-Output "Getting all drive letters"
     $Driveletters = Get-WmiObject -Class Win32_Volume | ? drivetype -ne 5 | select -ExpandProperty DriveLetter 
-    "running commands:"
+    Write-Output "Found driveletters: $($Driveletters -join ", ")"
+    Write-Output "Repairing BCD on all volumes"
     foreach ($Driveletter in $Driveletters) {
 
-        
         "bcdboot $OSPath /s $Driveletter /f ALL"
         bcdboot $OSPath /s $Driveletter /f ALL
     } 
