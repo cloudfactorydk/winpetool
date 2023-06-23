@@ -214,7 +214,7 @@ while ($true) {
         Invoke-Command -ScriptBlock $ActionSB
     }
     catch {
-        Write-Warning $_
+        Write-Warning $_ |Out-String
     }
 }
 
