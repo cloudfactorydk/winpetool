@@ -111,6 +111,7 @@ function Repair-BCD {
     $DiskpartScript += "assign"
     $DiskpartScript += "select vol 5"
     $DiskpartScript += "assign"
+    $DiskpartScript += "list vol"
     $DiskpartScript += "exit"
     $DiskpartScript | diskpart
 
@@ -120,8 +121,11 @@ function Repair-BCD {
 
     Write-Output "Repairing BCD on all volumes"
     $Driveletters = Get-Volume | Where-Object drivetype -ne "CD-ROM" | Select-Object -ExpandProperty DriveLetter
+    "running commands:"
     foreach ($Driveletter in $Driveletters) {
         $Driveletter=$Driveletter+":"
+        
+        "bcdboot $OSPath /s $Driveletter /f ALL"
         bcdboot $OSPath /s $Driveletter /f ALL
     } 
 }
