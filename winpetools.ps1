@@ -34,7 +34,7 @@ function Select-FromStringArray {
     $prompt += "Select option"
     $MenuChoice = Read-Host -Prompt $prompt
     $choice = $options[$MenuChoice]
-    if ($null - $choice) {
+    if ($null -eq $choice) {
         throw "Invalid choice"
         
     }
