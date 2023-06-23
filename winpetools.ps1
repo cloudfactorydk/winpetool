@@ -34,7 +34,7 @@ function Select-FromStringArray {
     $prompt += "Select option"
     $MenuChoice = Read-Host -Prompt $prompt
     $choice = $options[$MenuChoice]
-    if ($choice -eq $null) {
+    if ($null - $choice) {
         throw "Invalid choice"
         
     }
@@ -119,7 +119,7 @@ function Repair-BCD {
     $OSPath = Join-Path -Path $OSDriveletter -ChildPath "Windows"
 
     Write-Output "Repairing BCD on all volumes"
-    $Driveletters = Get-Volume | ? drivetype -ne "CD-ROM" | select -ExpandProperty DriveLetter
+    $Driveletters = Get-Volume | Where-Object drivetype -ne "CD-ROM" | Select-Object -ExpandProperty DriveLetter
     foreach ($Driveletter in $Driveletters) {
         $Driveletter=$Driveletter+":"
         bcdboot $OSPath /s $Driveletter /f ALL
