@@ -122,7 +122,7 @@ function Repair-BCD {
     
     #Drivetype 5 is CD-ROM
     Write-Output "Getting all drive letters"
-    $Driveletters = Get-WmiObject -Class Win32_Volume | ? drivetype -ne 5 | select -ExpandProperty DriveLetter 
+    $Driveletters = Get-WmiObject -Class Win32_Volume | select -ExpandProperty DriveLetter 
     Write-Output "Found driveletters: $($Driveletters -join ", ")"
     Write-Output "Repairing BCD on all volumes"
     foreach ($Driveletter in $Driveletters) {
