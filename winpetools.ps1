@@ -97,6 +97,7 @@ Function Repair-BCD-OLD {
 
 }
 function Repair-BCD {
+    Write-Output "Assigning drive letters to all volumes"
     $DiskpartScript = @()
     $DiskpartScript += "select vol 0"
     $DiskpartScript += "assign"
@@ -113,13 +114,15 @@ function Repair-BCD {
     $DiskpartScript += "exit"
     $DiskpartScript | diskpart
 
+    Write-Output "Getting OS path"
     $OSDriveletter = Get-DismTargetDir
     $OSPath = Join-Path -Path $OSDriveletter -ChildPath "Windows"
 
+    Write-Output "Repairing BCD on all volumes"
     $Driveletters = Get-Volume | ? drivetype -ne "CD-ROM" | select -ExpandProperty DriveLetter
     foreach ($Driveletter in $Driveletters) {
-
-        bcdboot $OSPath /s $($Driveletter): /f UEFI
+        $Driveletter=$Driveletter+":"
+        bcdboot $OSPath /s $Driveletter /f ALL
     } 
 }
 
