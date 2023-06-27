@@ -290,9 +290,10 @@ function Get-InstalledWindowsVersion {
 #endregion
 
 $ErrorActionPreference = "Stop"
-#$ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "C:\WinPE_amd64_CF\mount\Tools" }
-$WINPERoot = Split-Path (split-path (Get-Location).path)
-$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
+$ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
+#$WINPERoot = Split-Path (split-path (Get-Location).path)
+#$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
+
 Write-Output "Checking if virtio is installed"
 
 $VirtioInstalled = IsVirtioInstalled
