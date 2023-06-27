@@ -74,11 +74,9 @@ function Convert-BcdeditOutputToObject {
                 $objects += New-Object -TypeName PSObject -Property $properties
                 $properties = @{}
                 Write-Verbose "Old properties added to object"
-                Write-Verbose $properties
             }
         }
-        # If the line is empty or a separator, create a new object from the current properties and start a new one
-
+        
         # If the line contains a property, add it to the current properties
         elseif ($line -match "(?<key>[^\s]+)\s+(?<value>.*)") {
             Write-Verbose "Adding property"
@@ -91,7 +89,7 @@ function Convert-BcdeditOutputToObject {
     if ($properties.Count -gt 0) {
         $objects += New-Object -TypeName PSObject -Property $properties
         Write-Verbose "Last properties added to object"
-        Write-Verbose $properties
+
     }
 
     return $objects
@@ -104,7 +102,7 @@ function Test-BCD {
 
     $bcdeditOutputAsObject = Convert-BcdeditOutputToObject -bcdeditOutput $bcdeditOutput
     
-    Write-Host $bcdeditOutputAsObject
+    $bcdeditOutputAsObject |ConvertTo-Json
 
     #check if object is present with identifier {bootmgr}
     $BootMgr = $bcdeditOutputAsObject | ? identifier -eq "{bootmgr}"
