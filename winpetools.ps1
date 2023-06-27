@@ -46,11 +46,11 @@ function Select-FromStringArray {
 }
 function Convert-BcdeditOutputToObject {
     param(
-        [string]$bcdeditOutput
+        $bcdeditOutput
     )
     $VerbosePreference="Continue"
     # Split the output into lines using both Unix-style and Windows-style line endings
-    $lines = $bcdeditOutput -split "`r?`n?"
+    $lines = $bcdeditOutput -split "\n"
 
     # Initialize an array to hold the objects
     $objects = @()
