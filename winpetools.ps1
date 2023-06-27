@@ -44,6 +44,153 @@ function Select-FromStringArray {
     
 
 }
+function Convert-BcdeditOutputToObject {
+    param(
+        [string]$bcdeditOutput
+    )
+    <#
+    #This is a sample output from bcdedit. used for testing
+
+$bcdeditOutput =@"
+Windows Boot Manager
+--------------------
+identifier              {bootmgr}
+device                  partition=\Device\HarddiskVolume2
+path                    \EFI\Microsoft\Boot\bootmgfw.efi
+description             Windows Boot Manager
+locale                  en-US
+inherit                 {globalsettings}
+bootshutdowndisabled    Yes
+default                 {current}
+resumeobject            {858c3c7c-6ee2-11ea-8b59-00155d090e16}
+displayorder            {current}
+toolsdisplayorder       {memdiag}
+timeout                 30
+
+Windows Boot Loader
+-------------------
+identifier              {current}
+device                  partition=C:
+path                    \Windows\system32\winload.efi
+description             Windows Server
+locale                  en-US
+inherit                 {bootloadersettings}
+recoverysequence        {858c3c84-6ee2-11ea-8b59-00155d090e16}
+displaymessageoverride  Recovery
+recoveryenabled         Yes
+isolatedcontext         Yes
+allowedinmemorysettings 0x15000075
+osdevice                partition=C:
+systemroot              \Windows
+resumeobject            {858c3c7c-6ee2-11ea-8b59-00155d090e16}
+nx                      OptOut
+"@
+#>
+    # Split the output into lines using both Unix-style and Windows-style line endings
+    $lines = $bcdeditOutput -split "`r?`n"
+
+    # Initialize an array to hold the objects
+    $objects = @()
+
+    # Initialize a hash table to hold the current object's properties
+    $properties = @{}
+
+    foreach ($line in $lines) {
+        # If the line is empty or a separator, create a new object from the current properties and start a new one
+        # Ignore header lines
+        if ($line -match "Windows Boot (Manager|Loader)") {
+            continue
+        }
+        
+        if ($line -eq "" -or $line -match "-{6,}") {
+            if ($properties.Count -gt 0) {
+                $objects += $properties
+                $properties = @{}
+            }
+        }
+        # If the line contains a property, add it to the current properties
+        elseif ($line -match "(?<key>[^\s]+)\s+(?<value>.*)") {
+            $properties[$matches.key] = $matches.value
+        }
+
+    }
+
+    # Add the last object if it wasn't already added
+    if ($properties.Count -gt 0) {
+        $objects += $properties
+    }
+
+    return $objects
+}
+    
+function Test-BCD {
+    
+    $bcdeditOutput = bcdedit
+
+
+    $bcdeditOutputAsObject = Convert-BcdeditOutputToObject -bcdeditOutput $bcdeditOutput
+
+    #check if object is present with identifier {bootmgr}
+    $BootMgr = $bcdeditOutputAsObject | ? identifier -eq "{bootmgr}"
+
+    if ($null -eq $BootMgr) {
+        write-warning "Bootmgr not found in BCD"
+        return $false
+    }
+
+    Write-Host "Bootmgr found in BCD."
+    
+    write-host "Check bootmgr for device value"
+    $device = $BootMgr | select -ExpandProperty device
+    if ($null -eq $device) {
+        write-warning "Device value not found in BCD BootMgr entry"
+        return $false
+    }
+
+    write-host "Check for default value"
+    $default = $BootMgr | select -ExpandProperty default
+    if ($null -eq $default) {
+        write-warning "Default value not found in BCD"
+        return $false
+    }
+    
+    Write-Host "Default value found in BCD. Check for OS entry"
+    $OS = $bcdeditOutputAsObject | ? identifier -eq $default
+    if ($null -eq $OS) {
+        write-warning "OS entry not found in BCD"
+        return $false
+    }
+
+    write-host "Checking OS for values in device, path, osdevice, systemroot"
+    $device = $OS | select -ExpandProperty device
+    if ($null -eq $device) {
+        write-warning "Device value not found in BCD OS entry"
+        return $false
+    }
+
+    $path = $OS | select -ExpandProperty path
+    if ($null -eq $path) {
+        write-warning "Path value not found in BCD OS entry"
+        return $false
+    }
+
+    $osdevice = $OS | select -ExpandProperty osdevice
+    if ($null -eq $osdevice) {
+        write-warning "OSDevice value not found in BCD OS entry"
+        return $false
+    }
+
+    $systemroot = $OS | select -ExpandProperty systemroot
+    if ($null -eq $systemroot) {
+        write-warning "SystemRoot value not found in BCD OS entry"
+        return $false
+    }
+
+    write-host "All values found in BCD OS entry. BCD is valid"
+    write-host "Also, guest os is running in UEFI: $(IsUEFI)"
+    return $true
+
+}
 
 function IsUEFI {
     $BootMode = bcdedit | Select-String "path.*efi"
@@ -179,6 +326,9 @@ function Exit-to-CLI {
     exit
 }
 function Reboot {
+
+    Write-Host -ForegroundColor "Green" "Thank you for using Cloud Factory. Rebooting now."
+    Start-Sleep -Seconds 3
     wpeutil reboot
 }
 
@@ -302,13 +452,30 @@ if ($VirtioInstalled) {
     Write-Output "Virtio is installed"
 }
 else {
-    Write-Output "Virtio is not installed."
-    Write-Output "Getting Windows version"
-    $InstalledOSVersion = Get-InstalledWindowsVersion
-    write-output "Installed Windows version: $InstalledOSVersion"
-    Write-Output "injecting virtio"
-    Inject-VirtIO -OSVersion $InstalledOSVersion
+    try {
+        Write-Output "Virtio is not installed."
+        Write-Output "Getting Windows version"
 
+        $InstalledOSVersion = Get-InstalledWindowsVersion
+        write-output "Installed Windows version: $InstalledOSVersion"
+        Write-Output "injecting virtio"
+        Inject-VirtIO -OSVersion $InstalledOSVersion
+    }
+    catch {
+        write-warning "Auto install of virtio failed."
+        Write-Warning $_ | Out-String
+    }
+}
+
+write-output "Validating BCD store"
+$BCDValid = Test-BCDStore
+if ($BCDValid) {
+    write-output "BCD store is valid"
+}
+else {
+    write-output "BCD store is not valid"
+    write-output "Repairing BCD store"
+    Repair-BCD
 }
 
 while ($true) {
