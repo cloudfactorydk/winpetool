@@ -472,12 +472,13 @@ try {
     write-output "Validating BCD store"
     $BCDValid = Test-BCD
     if ($BCDValid) {
-        write-output "BCD store is valid"
+        write-host -ForegroundColor "Green" "BCD store is valid"
     }
     else {
-        write-output "BCD store is not valid"
-        write-output "Repairing BCD store"
+        write-host -ForegroundColor "yellow" "BCD store is not valid"
+        write-host -ForegroundColor "Green" "Repairing BCD store"
         Repair-BCD
+        write-host -ForegroundColor "Green" "BCD store is repaired."
     }
 }
 catch {
