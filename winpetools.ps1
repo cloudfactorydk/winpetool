@@ -197,6 +197,7 @@ function IsUEFI {
     if ($null -eq $BootMode) {
         # I think non-uefi is \Windows\System32\winload.exe
         $BootMode = "Legacy"
+        write-host "Computer is running in $BootMode boot mode."
         return $false
     }
     else {
@@ -204,6 +205,7 @@ function IsUEFI {
         #path                    \EFI\MICROSOFT\BOOT\BOOTMGFW.EFI
         #path                    \Windows\system32\winload.efi
         $BootMode = "UEFI"
+        write-host "Computer is running in $BootMode boot mode."
         return $true
     }
 
