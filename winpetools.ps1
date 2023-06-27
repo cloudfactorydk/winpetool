@@ -71,7 +71,7 @@ function Convert-BcdeditOutputToObject {
         if ($line -match "Windows Boot (Manager|Loader)") {
             Write-Verbose "New object"
             if ($properties.Count -gt 0) {
-                $objects += $properties
+                $objects += New-Object -TypeName PSObject -Property $properties
                 $properties = @{}
                 Write-Verbose "Old properties added to object"
                 Write-Verbose $properties
@@ -89,7 +89,7 @@ function Convert-BcdeditOutputToObject {
 
     # Add the last object if it wasn't already added
     if ($properties.Count -gt 0) {
-        $objects += $properties
+        $objects += New-Object -TypeName PSObject -Property $properties
         Write-Verbose "Last properties added to object"
         Write-Verbose $properties
     }
