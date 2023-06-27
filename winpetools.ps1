@@ -466,16 +466,21 @@ else {
         Write-Warning $_ | Out-String
     }
 }
-
-write-output "Validating BCD store"
-$BCDValid = Test-BCDStore
-if ($BCDValid) {
-    write-output "BCD store is valid"
+try {
+    write-output "Validating BCD store"
+    $BCDValid = Test-BCD
+    if ($BCDValid) {
+        write-output "BCD store is valid"
+    }
+    else {
+        write-output "BCD store is not valid"
+        write-output "Repairing BCD store"
+        Repair-BCD
+    }
 }
-else {
-    write-output "BCD store is not valid"
-    write-output "Repairing BCD store"
-    Repair-BCD
+catch {
+    write-warning "BCD store validation failed."
+    Write-Warning $_ | Out-String
 }
 
 while ($true) {
