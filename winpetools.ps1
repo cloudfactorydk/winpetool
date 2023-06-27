@@ -48,9 +48,11 @@ function Convert-BcdeditOutputToObject {
     param(
         $bcdeditOutput
     )
+    $bcdeditOutput = bcdedit
+
     $VerbosePreference="Continue"
     # Split the output into lines using both Unix-style and Windows-style line endings
-    $lines = $bcdeditOutput -split "\n"
+    $lines = $bcdeditOutput -split "(\r?\n|\r)"
 
     # Initialize an array to hold the objects
     $objects = @()
