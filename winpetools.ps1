@@ -48,44 +48,7 @@ function Convert-BcdeditOutputToObject {
     param(
         [string]$bcdeditOutput
     )
-    <#
-    #This is a sample output from bcdedit. used for testing
 
-$bcdeditOutput =@"
-Windows Boot Manager
---------------------
-identifier              {bootmgr}
-device                  partition=\Device\HarddiskVolume2
-path                    \EFI\Microsoft\Boot\bootmgfw.efi
-description             Windows Boot Manager
-locale                  en-US
-inherit                 {globalsettings}
-bootshutdowndisabled    Yes
-default                 {current}
-resumeobject            {858c3c7c-6ee2-11ea-8b59-00155d090e16}
-displayorder            {current}
-toolsdisplayorder       {memdiag}
-timeout                 30
-
-Windows Boot Loader
--------------------
-identifier              {current}
-device                  partition=C:
-path                    \Windows\system32\winload.efi
-description             Windows Server
-locale                  en-US
-inherit                 {bootloadersettings}
-recoverysequence        {858c3c84-6ee2-11ea-8b59-00155d090e16}
-displaymessageoverride  Recovery
-recoveryenabled         Yes
-isolatedcontext         Yes
-allowedinmemorysettings 0x15000075
-osdevice                partition=C:
-systemroot              \Windows
-resumeobject            {858c3c7c-6ee2-11ea-8b59-00155d090e16}
-nx                      OptOut
-"@
-#>
     # Split the output into lines using both Unix-style and Windows-style line endings
     $lines = $bcdeditOutput -split "`r?`n"
 
@@ -96,18 +59,19 @@ nx                      OptOut
     $properties = @{}
 
     foreach ($line in $lines) {
-        # If the line is empty or a separator, create a new object from the current properties and start a new one
-        # Ignore header lines
-        if ($line -match "Windows Boot (Manager|Loader)") {
+        # Ignore header lines and separators
+        if ($line -eq "" -or $line -match "-{6,}") {
             continue
         }
-        
-        if ($line -eq "" -or $line -match "-{6,}") {
+        #Create a new object if the line is a new entry
+        if ($line -match "Windows Boot (Manager|Loader)") {
             if ($properties.Count -gt 0) {
                 $objects += $properties
                 $properties = @{}
             }
         }
+        # If the line is empty or a separator, create a new object from the current properties and start a new one
+
         # If the line contains a property, add it to the current properties
         elseif ($line -match "(?<key>[^\s]+)\s+(?<value>.*)") {
             $properties[$matches.key] = $matches.value
