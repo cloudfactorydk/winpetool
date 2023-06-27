@@ -122,7 +122,7 @@ function Repair-BCD {
     
     #Drivetype 5 is CD-ROM
     Write-Output "Getting all drive letters"
-    $Driveletters = get-psdrive | ? {$_.provider.name -eq "Filesystem"} | Select-Object -ExpandProperty root
+    $Driveletters = get-psdrive | ? { $_.provider.name -eq "Filesystem" } | Select-Object -ExpandProperty root
     Write-Output "Found driveletters: $($Driveletters -join ", ")"
     Write-Output "Repairing BCD on all volumes"
     foreach ($Driveletter in $Driveletters) {
@@ -132,12 +132,34 @@ function Repair-BCD {
     } 
 }
 
-
+function IsVirtioInstalled {
+    $DismTargetDir = Get-DismTargetDir
+   
+    $vioscsi = Dism /Image:$DismTargetDir /Get-Drivers | Select-String "vioscsi"
+    if ($null -eq $vioscsi) {
+        return $false
+    }
+    else {
+        return $true
+    }
+    
+}
 function Inject-VirtIO {
-
+    param (
+        $OSVersion
+    )
     $VirtioDriverRoot = join-path -Path $ScriptRoot -ChildPath "VirtIO_Drivers"
-    $VirtioOptions = Get-ChildItem  $VirtioDriverRoot -Directory | select -ExpandProperty name
-    $VirtioTargetSelected = Select-FromStringArray -title "Select Target OS" -options $VirtioOptions
+    
+    if ($OSVersion) {
+        #use parameter if given.
+        $VirtioTargetSelected = Map-OSVersionToFolderName -OSVersion $OSVersion
+    }
+    else {
+        #else ask for it
+        $VirtioOptions = Get-ChildItem  $VirtioDriverRoot -Directory | select -ExpandProperty name
+        $VirtioTargetSelected = Select-FromStringArray -title "Select Target OS" -options $VirtioOptions
+    }
+    
     $VirtioTargetPath = Join-Path -Path $VirtioDriverRoot -ChildPath $VirtioTargetSelected
 
     $DismTargetDir = Get-DismTargetDir
@@ -200,10 +222,94 @@ function Copy-SysFiles {
     $destfile = $Sourcefile.FullName -replace "\\wim", ""
     Copy-Item -Path $Sourcefile -Destination $destfile -Force -Confirm:$false
 }
+function Map-OSVersionToFolderName {
+    param(
+        [string]$OSVersion
+    )
+    #map os version string to foldername.
+    
+    #string examples:
+    #Windows Server 2022 Standard
+    #Windows Server 2022 Enterprise
+    #Windows Server 2022 Datacenter
+    #Windows Server 2019 Standard
+    #Windows Server 2016 Standard
+    #Windows Server 2012 R2 Standard
+    #windows 10 pro
+    #windows 10 enterprise
+
+    #Foldernames
+    #Windows 7 (Legacy)
+    #Windows 8
+    #Windows 8.1
+    #Windows 10
+    #Windows 11
+    #Windows Server 2008 (Fedora ISO)
+    #Windows Server 2008 R2 (Legacy)
+    #Windows Server 2012
+    #Windows Server 2012 R2
+    #Windows Server 2016
+    #Windows Server 2019
+    #Windows Server 2022
+
+    # Define the mapping
+    $mapping = @{
+        "Windows Server 2022"    = "Windows Server 2022"
+        "Windows Server 2019"    = "Windows Server 2019"
+        "Windows Server 2016"    = "Windows Server 2016"
+        "Windows Server 2012 R2" = "Windows Server 2012 R2"
+        "Windows Server 2012"    = "Windows Server 2012"
+        "Windows Server 2008 R2" = "Windows Server 2008 R2 (Legacy)"
+        "Windows Server 2008"    = "Windows Server 2008 (Fedora ISO)"
+        "windows 10"             = "Windows 10"
+        "windows 8.1"            = "Windows 8.1"
+        "windows 8"              = "Windows 8"
+        "windows 7"              = "Windows 7 (Legacy)"
+    }
+
+    # Iterate over the keys in the mapping
+    foreach ($key in $mapping.Keys) {
+        # Check if the OS version string contains the key
+        if ($OSVersion -match $key) {
+            # Return the corresponding folder name
+            return $mapping[$key]
+        }
+    }
+
+    # If no match is found, return a default value
+    return "Unknown OS Version"
+}
+function Get-InstalledWindowsVersion {
+    $DismTargetDir = Get-DismTargetDir
+    $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
+    reg load HKLM\TEMPHIVE $SoftwarePath
+    $Version = (Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion" -Name "ProductName").ProductName
+    reg unload HKLM\TEMPHIVE
+    return $Version
+}
 #endregion
 
 $ErrorActionPreference = "Stop"
-$ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "C:\WinPE_amd64_CF\mount\Tools" }
+#$ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "C:\WinPE_amd64_CF\mount\Tools" }
+$WINPERoot = Split-Path (split-path (Get-Location).path)
+$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
+Write-Output "Checking if virtio is installed"
+
+$VirtioInstalled = IsVirtioInstalled
+
+if ($VirtioInstalled) {
+    Write-Output "Virtio is installed"
+}
+else {
+    Write-Output "Virtio is not installed."
+    Write-Output "Getting Windows version"
+    $InstalledOSVersion = Get-InstalledWindowsVersion
+    write-output "Installed Windows version: $InstalledOSVersion"
+    Write-Output "injecting virtio"
+    Inject-VirtIO -OSVersion $InstalledOSVersion
+
+}
+
 while ($true) {
     try {
         $Action = Select-FromStringArray -title "Choose Action" -options @(
@@ -220,7 +326,7 @@ while ($true) {
         Invoke-Command -ScriptBlock $ActionSB
     }
     catch {
-        Write-Warning $_ |Out-String
+        Write-Warning $_ | Out-String
     }
 }
 
