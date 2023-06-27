@@ -68,7 +68,7 @@ function Convert-BcdeditOutputToObject {
             continue
         }
         #Create a new object if the line is a new entry
-        if ($line -match "Windows Boot (Manager|Loader)") {
+        if ($line -match "^Windows Boot (Manager|Loader)$") {
             Write-Verbose "New object"
             if ($properties.Count -gt 0) {
                 $objects += New-Object -TypeName PSObject -Property $properties
@@ -102,7 +102,7 @@ function Test-BCD {
 
     $bcdeditOutputAsObject = Convert-BcdeditOutputToObject -bcdeditOutput $bcdeditOutput
     
-    $bcdeditOutputAsObject |ConvertTo-Json
+
 
     #check if object is present with identifier {bootmgr}
     $BootMgr = $bcdeditOutputAsObject | ? identifier -eq "{bootmgr}"
