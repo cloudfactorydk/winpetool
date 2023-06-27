@@ -48,7 +48,7 @@ function Convert-BcdeditOutputToObject {
     param(
         [string]$bcdeditOutput
     )
-
+    $VerbosePreference="Continue"
     # Split the output into lines using both Unix-style and Windows-style line endings
     $lines = $bcdeditOutput -split "`r?`n"
 
@@ -59,21 +59,27 @@ function Convert-BcdeditOutputToObject {
     $properties = @{}
 
     foreach ($line in $lines) {
+        Write-Verbose $line
         # Ignore header lines and separators
         if ($line -eq "" -or $line -match "-{6,}") {
+            Write-Verbose "skipping line"
             continue
         }
         #Create a new object if the line is a new entry
         if ($line -match "Windows Boot (Manager|Loader)") {
+            Write-Verbose "New object"
             if ($properties.Count -gt 0) {
                 $objects += $properties
                 $properties = @{}
+                Write-Verbose "Old properties added to object"
+                Write-Verbose $properties
             }
         }
         # If the line is empty or a separator, create a new object from the current properties and start a new one
 
         # If the line contains a property, add it to the current properties
         elseif ($line -match "(?<key>[^\s]+)\s+(?<value>.*)") {
+            Write-Verbose "Adding property"
             $properties[$matches.key] = $matches.value
         }
 
@@ -82,6 +88,8 @@ function Convert-BcdeditOutputToObject {
     # Add the last object if it wasn't already added
     if ($properties.Count -gt 0) {
         $objects += $properties
+        Write-Verbose "Last properties added to object"
+        Write-Verbose $properties
     }
 
     return $objects
@@ -93,6 +101,8 @@ function Test-BCD {
 
 
     $bcdeditOutputAsObject = Convert-BcdeditOutputToObject -bcdeditOutput $bcdeditOutput
+    
+    Write-Host $bcdeditOutputAsObject
 
     #check if object is present with identifier {bootmgr}
     $BootMgr = $bcdeditOutputAsObject | ? identifier -eq "{bootmgr}"
