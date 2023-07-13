@@ -50,7 +50,7 @@ function Convert-BcdeditOutputToObject {
     )
     $bcdeditOutput = bcdedit
 
-    $VerbosePreference="Continue"
+    $VerbosePreference="silentlyContinue"
     # Split the output into lines using both Unix-style and Windows-style line endings
     $lines = $bcdeditOutput -split "(\r?\n|\r)"
 
@@ -220,23 +220,7 @@ Function Repair-BCD-OLD {
 
 }
 function Repair-BCD {
-    Write-Output "Assigning drive letters to all volumes"
-    $DiskpartScript = @()
-    $DiskpartScript += "select vol 0"
-    $DiskpartScript += "assign"
-    $DiskpartScript += "select vol 1"
-    $DiskpartScript += "assign"
-    $DiskpartScript += "select vol 2"
-    $DiskpartScript += "assign"
-    $DiskpartScript += "select vol 3"
-    $DiskpartScript += "assign"
-    $DiskpartScript += "select vol 4"
-    $DiskpartScript += "assign"
-    $DiskpartScript += "select vol 5"
-    $DiskpartScript += "assign"
-    $DiskpartScript += "list vol"
-    $DiskpartScript += "exit"
-    $DiskpartScript | diskpart
+
 
     Write-Output "Getting OS path"
     $OSDriveletter = Get-DismTargetDir
@@ -420,16 +404,42 @@ $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
 #$WINPERoot = Split-Path (split-path (Get-Location).path)
 #$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
 
+Write-Output "Assigning drive letters to all volumes"
+$DiskpartScript = @()
+$DiskpartScript += "select vol 0"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 1"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 2"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 3"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 4"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 5"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 6"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 7"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 8"
+$DiskpartScript += "assign"
+$DiskpartScript += "select vol 9"
+$DiskpartScript += "assign"
+$DiskpartScript += "list vol"
+$DiskpartScript += "exit"
+$DiskpartScript | diskpart
+
 Write-Output "Checking if virtio is installed"
 
 $VirtioInstalled = IsVirtioInstalled
 
 if ($VirtioInstalled) {
-    Write-Output "Virtio is installed"
+    Write-host -ForegroundColor "Green" "Virtio is installed"
 }
 else {
     try {
-        Write-Output "Virtio is not installed."
+        Write-host -ForegroundColor "Yellow" "Virtio is not installed."
         Write-Output "Getting Windows version"
 
         $InstalledOSVersion = Get-InstalledWindowsVersion
