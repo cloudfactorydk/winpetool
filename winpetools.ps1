@@ -326,8 +326,10 @@ function Mount-Install-WIM {
 
     }
     
-    $Mountpath = "c:\wim"
-    mkdir $Mountpath
+    $Mountpath = Join-Path $OSDriveletter "wim"
+    if (!(test-path $Mountpath)) {
+        mkdir $Mountpath
+    }
     Dismount-WindowsImage -Path $Mountpath -Discard
     $ErrorActionPreference = "Stop"
     Mount-WindowsImage -Path $Mountpath -ImagePath $Wimpath -Index 1 -ReadOnly
@@ -335,19 +337,21 @@ function Mount-Install-WIM {
 }
 function Mount-And-Repair-From-Wim {
     Mount-Install-WIM
-    $Mountpath = "c:\wim"
+    $osdriveletter = Get-DismTargetDir
+    $Mountpath = Join-Path $OSDriveletter "wim"
+    $downloadfolder = Join-Path $OSDriveletter "CloudFactory"
     Test-Path  $Mountpath
-    mkdir "c:\temp" -ErrorAction SilentlyContinue
+    mkdir $downloadfolder -ErrorAction SilentlyContinue
     remove-item "c:\windows\winsxs\pending.xml" -Force -Confirm:$false -ErrorAction SilentlyContinue
     
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows /OFFLOGFILE=c:\temp\SFC$FileNameSuffix.txt
+    sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
     
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    Repair-WindowsImage -RestoreHealth -Source "c:\wim\windows\winsxs", "c:\wim\windows" -Path "c:\" -LogPath "c:\temp\DISM$FileNameSuffix.log" -LimitAccess
+    Repair-WindowsImage -RestoreHealth -Source "c:\wim\windows\winsxs", "c:\wim\windows" -Path "c:\" -LogPath "$downloadfolder\DISM$FileNameSuffix.log" -LimitAccess
     
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows /OFFLOGFILE=c:\temp\SFC$FileNameSuffix.txt
+    sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
 }
 function Copy-SysFiles {
     $Mountpath = "c:\wim"
@@ -475,26 +479,27 @@ function Download-Windows-ISO {
     
     # Wait for the download to finish and show progress
     while ($job.State -eq 'Running') {
-        try{
-        if (Test-Path $wimpath) {
-            $fileSize = (Get-Item $wimpath).Length
-            $currentTime = Get-Date
+        try {
+            if (Test-Path $wimpath) {
+                $fileSize = (Get-Item $wimpath).Length
+                $currentTime = Get-Date
     
-            # Calculate download speed in Mbps
-            $deltaSize = $fileSize - $prevFileSize
-            $deltaTime = $currentTime - $prevTime
-            [int]$downloadSpeed = ($deltaSize * 8) / ($deltaTime.TotalSeconds * 1MB)
-            Write-Host "Current download speed: $downloadSpeed Mbps" -NoNewline 
+                # Calculate download speed in Mbps
+                $deltaSize = $fileSize - $prevFileSize
+                $deltaTime = $currentTime - $prevTime
+                [int]$downloadSpeed = ($deltaSize * 8) / ($deltaTime.TotalSeconds * 1MB)
+                Write-Host "Current download speed: $downloadSpeed Mbps" -NoNewline 
 
-            #Show total downloaded MB
-            [int]$totalDownloaded = $fileSize / 1MB
-            Write-Host " - Total downloaded: $totalDownloaded MB"
+                #Show total downloaded MB
+                [int]$totalDownloaded = $fileSize / 1MB
+                Write-Host " - Total downloaded: $totalDownloaded MB"
     
-            # Update previous file size and time
-            $prevFileSize = $fileSize
-            $prevTime = $currentTime
+                # Update previous file size and time
+                $prevFileSize = $fileSize
+                $prevTime = $currentTime
+            }
         }
-    }catch{"Waiting for download to start"}
+        catch { "Waiting for download to start" }
         Start-Sleep -Seconds 5
     }
     
