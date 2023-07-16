@@ -351,12 +351,15 @@ function Mount-And-Repair-From-Wim {
     write-host "Removing pending.xml if present. To resolve pending reboot issues"
     remove-item "c:\windows\winsxs\pending.xml" -Force -Confirm:$false -ErrorAction SilentlyContinue
     
+    Write-Host "Running first SFC scan"
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
     sfc /scannow /offbootdir=$osdriveletter /offwindir=$ospath /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
     
+    Write-Host "Running DISM scan"
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    Repair-WindowsImage -RestoreHealth -Source "$mountpath\windows\winsxs", "$mountpath\windows" -Path "$osdriveletter" -LogPath "$downloadfolder\DISM$FileNameSuffix.log" -LimitAccess
+    Repair-WindowsImage -RestoreHealth -Source "$mountpath\windows\winsxs", "$mountpath\windows" -Path "$osdriveletter" -LogPath "$downloadfolder\DISM$FileNameSuffix.log"
     
+    Write-Host "Running second SFC scan"
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
     sfc /scannow /offbootdir=$osdriveletter /offwindir=$ospath /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
 }
