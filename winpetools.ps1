@@ -308,15 +308,17 @@ function Mount-Install-WIM {
 
         Write-Output "Check if install.wim is present in $DownloadFolder"
         $Wimpath = Join-Path  $DownloadFolder "install.wim"
-        if (test-path $wimpath){
+        if (test-path $wimpath) {
             write-host "Found install.wim in $DownloadFolder"
-        }else {
+        }
+        else {
             Write-Host "Cant find install.wim in $DownloadFolder"
             Write-Host "Downloading install.wim from dropbox"
             Download-Windows-ISO
-            if (!(test-path $wimpath)){
+            if (!(test-path $wimpath)) {
                 throw "Cant find install.wim in $DownloadFolder. Download failed"
-            }else{
+            }
+            else {
                 write-host "Download complete"
 
             }
@@ -450,16 +452,46 @@ function Download-Windows-ISO {
     
     $OSDriveletter = Get-DismTargetDir
     $DownloadFolder = Join-Path -Path $OSDriveletter -ChildPath "CloudFactory"
-    if (!(test-path $DownloadFolder)){
+    if (!(test-path $DownloadFolder)) {
         mkdir $DownloadFolder
     }
-    $wimpath=Join-Path  $DownloadFolder "install.wim"
+    $wimpath = Join-Path  $DownloadFolder "install.wim"
     write-host "Downloading from $URI"
     write-host "Saving to $wimpath"
+    Write-Host "Please have patience. This can take a while. And it shows no progress."
+    
     #download iso to $isofolder using webclient
-    $WebClient = New-Object System.Net.WebClient
-    $WebClient.DownloadFile($URI, $wimpath)
-    $WebClient.Dispose()
+        # Start the download as a job
+        $job = Start-Job -ScriptBlock {
+            # ... (previous code omitted for brevity)
+        } -ArgumentList $URI, $wimpath
+    
+        # Initialize previous file size and time
+        $prevFileSize = 0
+        $prevTime = Get-Date
+    
+        # Wait for the download to finish and show progress
+        while ($job.State -eq 'Running') {
+            if (Test-Path $wimpath) {
+                $fileSize = (Get-Item $wimpath).Length
+                $currentTime = Get-Date
+    
+                # Calculate download speed in Mbps
+                $deltaSize = $fileSize - $prevFileSize
+                $deltaTime = $currentTime - $prevTime
+                $downloadSpeed = ($deltaSize * 8) / ($deltaTime.TotalSeconds * 1MB)
+                Write-Host "Current download speed: $downloadSpeed Mbps"
+    
+                # Update previous file size and time
+                $prevFileSize = $fileSize
+                $prevTime = $currentTime
+            }
+            Start-Sleep -Seconds 5
+        }
+    
+        # Remove the job after it's done
+        Remove-Job -Job $job
+    }
     
     #mount iso
 
