@@ -481,6 +481,10 @@ function Download-Windows-ISO {
                 $deltaTime = $currentTime - $prevTime
                 $downloadSpeed = ($deltaSize * 8) / ($deltaTime.TotalSeconds * 1MB)
                 Write-Host "Current download speed: $downloadSpeed Mbps"
+
+                #Show total downloaded MB
+                $totalDownloaded = $fileSize / 1MB
+                Write-Host "Total downloaded: $totalDownloaded MB"
     
                 # Update previous file size and time
                 $prevFileSize = $fileSize
