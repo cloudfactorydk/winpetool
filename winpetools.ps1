@@ -330,8 +330,13 @@ function Mount-Install-WIM {
     if (!(test-path $Mountpath)) {
         mkdir $Mountpath
     }
-    Dismount-WindowsImage -Path $Mountpath -Discard
+    Write-Output "Unmounting $Mountpath if mounted"
+    try {
+        Dismount-WindowsImage -Path $Mountpath -Discard
+    }
+    catch {}
     $ErrorActionPreference = "Stop"
+    Write-Output "Mounting $Wimpath to $Mountpath"
     Mount-WindowsImage -Path $Mountpath -ImagePath $Wimpath -Index 1 -ReadOnly
 
 }
