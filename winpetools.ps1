@@ -50,7 +50,7 @@ function Convert-BcdeditOutputToObject {
     )
     $bcdeditOutput = bcdedit
 
-    $VerbosePreference="silentlyContinue"
+    $VerbosePreference = "silentlyContinue"
     # Split the output into lines using both Unix-style and Windows-style line endings
     $lines = $bcdeditOutput -split "(\r?\n|\r)"
 
@@ -294,14 +294,36 @@ function Reboot {
 
 
 function Mount-Install-WIM {
+
     $Letters = Get-Volume | ? drivetype -eq "CD-ROM" | select -expand DriveLetter
     $ErrorActionPreference = "SilentlyContinue"
     $Wimpaths = $Letters | % { get-childitem -Path "$($_):\" -Recurse  -include "install.wim" } | select -ExpandProperty fullname
     
     $Wimpath = $Wimpaths | select -first 1
     if ($Wimpath -eq $null) {
-        throw "Cant find install.wim. Remember to mount the ISO"
+        write-warning "Cant find mounted iso with install.wim"
+
+        $OSDriveletter = Get-DismTargetDir
+        $DownloadFolder = Join-Path -Path $OSDriveletter -ChildPath "CloudFactory"
+
+        Write-Output "Check if install.wim is present in $DownloadFolder"
+        $Wimpath = Join-Path  $DownloadFolder "install.wim"
+        if (test-path $wimpath){
+            write-host "Found install.wim in $DownloadFolder"
+        }else {
+            Write-Host "Cant find install.wim in $DownloadFolder"
+            Write-Host "Downloading install.wim from dropbox"
+            Download-Windows-ISO
+            if (!(test-path $wimpath)){
+                throw "Cant find install.wim in $DownloadFolder. Download failed"
+            }else{
+                write-host "Download complete"
+
+            }
+        }
+
     }
+    
     $Mountpath = "c:\wim"
     mkdir $Mountpath
     Dismount-WindowsImage -Path $Mountpath -Discard
@@ -397,6 +419,51 @@ function Get-InstalledWindowsVersion {
     reg unload HKLM\TEMPHIVE
     return $Version
 }
+
+function Get-LinkFromOSVersion {
+    param (
+        $OSVersion
+    )
+    
+    $Mapping = @{
+        #2019
+        20 = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
+
+    }
+
+    # Iterate over the keys in the mapping
+    foreach ($key in $mapping.Keys) {
+        # Check if the OS version string contains the key
+        if ($OSVersion -match $key) {
+            # Return the corresponding folder name
+            return $mapping[$key]
+        }
+    }
+    throw "Cant find link for OS version: $OSVersion"
+}
+
+
+function Download-Windows-ISO {
+    $WindowsVersion = Get-InstalledWindowsVersion
+
+    $URI = Get-LinkFromOSVersion -OSVersion $WindowsVersion
+
+    $OSDriveletter = Get-DismTargetDir
+    $DownloadFolder = Join-Path -Path $OSDriveletter -ChildPath "CloudFactory"
+
+    #download iso to $isofolder using webclient
+    $WebClient = New-Object System.Net.WebClient
+    $WebClient.DownloadFile($URI, "$DownloadFolder\install.wim")
+    $WebClient.Dispose()
+    
+    #mount iso
+
+
+
+
+    
+        
+}
 #endregion
 
 $ErrorActionPreference = "Stop"
@@ -404,6 +471,7 @@ $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
 #$WINPERoot = Split-Path (split-path (Get-Location).path)
 #$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
 
+#region selfheal
 Write-Output "Assigning drive letters to all volumes"
 $DiskpartScript = @()
 $DiskpartScript += "select vol 0"
@@ -469,7 +537,8 @@ catch {
     write-warning "BCD store validation failed."
     Write-Warning $_ | Out-String
 }
-
+#endregion
+#region main loop
 while ($true) {
     try {
         $Action = Select-FromStringArray -title "Choose Action" -options @(
@@ -480,6 +549,7 @@ while ($true) {
             "Repair-BCD"
             "Reboot"
             "Exit-to-CLI"
+            "Download-Windows-ISO"
 
         )
         $ActionSB = ([scriptblock]::Create($action))
@@ -490,5 +560,5 @@ while ($true) {
     }
 }
 
-
+#endregion
 
