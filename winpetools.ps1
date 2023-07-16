@@ -472,6 +472,7 @@ function Download-Windows-ISO {
     
     # Wait for the download to finish and show progress
     while ($job.State -eq 'Running') {
+        try{
         if (Test-Path $wimpath) {
             $fileSize = (Get-Item $wimpath).Length
             $currentTime = Get-Date
@@ -490,6 +491,7 @@ function Download-Windows-ISO {
             $prevFileSize = $fileSize
             $prevTime = $currentTime
         }
+    }catch{"Waiting for download to start"}
         Start-Sleep -Seconds 5
     }
     
@@ -590,7 +592,7 @@ while ($true) {
             "Repair-BCD"
             "Reboot"
             "Exit-to-CLI"
-            "Download-Windows-ISO"
+            
 
         )
         $ActionSB = ([scriptblock]::Create($action))
