@@ -445,15 +445,17 @@ function Get-LinkFromOSVersion {
 
 function Download-Windows-ISO {
     $WindowsVersion = Get-InstalledWindowsVersion
-
+    write-output "Installed Windows version: $WindowsVersion"
     $URI = Get-LinkFromOSVersion -OSVersion $WindowsVersion
-
+    
     $OSDriveletter = Get-DismTargetDir
     $DownloadFolder = Join-Path -Path $OSDriveletter -ChildPath "CloudFactory"
-
+    $wimpath=Join-Path  $DownloadFolder "install.wim"
+    write-output "Downloading from $URI"
+    write-output "Saving to $wimpath"
     #download iso to $isofolder using webclient
     $WebClient = New-Object System.Net.WebClient
-    $WebClient.DownloadFile($URI, "$DownloadFolder\install.wim")
+    $WebClient.DownloadFile($URI, $wimpath)
     $WebClient.Dispose()
     
     #mount iso
