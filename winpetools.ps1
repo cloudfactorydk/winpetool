@@ -343,20 +343,22 @@ function Mount-Install-WIM {
 function Mount-And-Repair-From-Wim {
     Mount-Install-WIM
     $osdriveletter = Get-DismTargetDir
+    $ospath = Join-Path -Path $osdriveletter -ChildPath "Windows"
     $Mountpath = Join-Path $OSDriveletter "wim"
     $downloadfolder = Join-Path $OSDriveletter "CloudFactory"
     Test-Path  $Mountpath
     mkdir $downloadfolder -ErrorAction SilentlyContinue
+    write-host "Removing pending.xml if present. To resolve pending reboot issues"
     remove-item "c:\windows\winsxs\pending.xml" -Force -Confirm:$false -ErrorAction SilentlyContinue
     
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
+    sfc /scannow /offbootdir=$osdriveletter /offwindir=$ospath /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
     
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    Repair-WindowsImage -RestoreHealth -Source "c:\wim\windows\winsxs", "c:\wim\windows" -Path "c:\" -LogPath "$downloadfolder\DISM$FileNameSuffix.log" -LimitAccess
+    Repair-WindowsImage -RestoreHealth -Source "$mountpath\windows\winsxs", "$mountpath\windows" -Path "$osdriveletter" -LogPath "$downloadfolder\DISM$FileNameSuffix.log" -LimitAccess
     
     $FileNameSuffix = get-date -Format "yyyyMMdd-HHmmss"
-    sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
+    sfc /scannow /offbootdir=$osdriveletter /offwindir=$ospath /OFFLOGFILE=$downloadfolder\SFC$FileNameSuffix.txt
 }
 function Copy-SysFiles {
     $Mountpath = "c:\wim"
