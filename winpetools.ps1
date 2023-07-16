@@ -458,12 +458,15 @@ function Download-Windows-ISO {
     $wimpath = Join-Path  $DownloadFolder "install.wim"
     write-host "Downloading from $URI"
     write-host "Saving to $wimpath"
-    Write-Host "Please have patience. This can take a while. And it shows no progress."
+    Write-Host "Please have patience. This can take a while."
     
     #download iso to $isofolder using webclient
     # Start the download as a job
     $job = Start-Job -ScriptBlock {
-        # ... (previous code omitted for brevity)
+        param($URI, $wimpath)
+        $WebClient = New-Object System.Net.WebClient
+        $WebClient.DownloadFile($URI, $wimpath)
+        $WebClient.Dispose()
     } -ArgumentList $URI, $wimpath
     
     # Initialize previous file size and time
