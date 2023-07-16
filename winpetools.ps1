@@ -450,6 +450,9 @@ function Download-Windows-ISO {
     
     $OSDriveletter = Get-DismTargetDir
     $DownloadFolder = Join-Path -Path $OSDriveletter -ChildPath "CloudFactory"
+    if (!(test-path $DownloadFolder)){
+        mkdir $DownloadFolder
+    }
     $wimpath=Join-Path  $DownloadFolder "install.wim"
     write-host "Downloading from $URI"
     write-host "Saving to $wimpath"
