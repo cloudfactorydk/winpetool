@@ -520,20 +520,14 @@ function Download-Windows-ISO {
     Remove-Job -Job $job
 }
     
-#mount iso
-
-
-
-
-    
-        
 
 #endregion
-
+#region init
 $ErrorActionPreference = "Stop"
 $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
 #$WINPERoot = Split-Path (split-path (Get-Location).path)
 #$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
+#endregion
 
 #region selfheal
 Write-Output "Assigning drive letters to all volumes"
