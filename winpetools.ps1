@@ -476,7 +476,6 @@ function Download-Windows-ISO {
     $wimpath = Join-Path  $DownloadFolder "install.wim"
     write-host "Downloading from $URI"
     write-host "Saving to $wimpath"
-    Write-Host "Please have patience. This can take a while."
     
     #download iso to $isofolder using webclient
     # Start the download as a job
