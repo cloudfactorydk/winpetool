@@ -441,9 +441,13 @@ function Get-LinkFromOSVersion {
         $OSVersion
     )
     
+    #more specific names first. Like 2012 R2 before 2012
     $Mapping = @{
-        #2019
-        20 = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
+        2022      = "https://www.dropbox.com/scl/fi/hc2oupby2evxxqqnjxkox/install.wim?rlkey=y42rwfmetz0y9ms1e1zcl8p3n&dl=1"
+        2019      = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
+        2016      = "https://www.dropbox.com/scl/fi/cafgqkcd6rzrhnc565nfj/install.wim?rlkey=rsqw6k371on3gj8hucr2wpw1g&dl=1"
+        '2012 R2' = "https://www.dropbox.com/scl/fi/owdrhifw2p6f3jjoc4hmj/install.wim?rlkey=ct24e3loqq6ri7sytggzsgyvz&dl=1"
+        2012      = "https://www.dropbox.com/scl/fi/l8a260ovdsmrm6j78dp4z/install.wim?rlkey=5gxnivcil1q8xqskpdk8elj4i&dl=1"
 
     }
 
