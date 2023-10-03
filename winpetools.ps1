@@ -605,6 +605,7 @@ while ($true) {
             "Mount-Install-WIM"
             "Mount-And-Repair-From-Wim"
             "Repair-BCD"
+            "IsUEFI"
             "Reboot"
             "Exit-to-CLI"
             
