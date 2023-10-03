@@ -525,52 +525,59 @@ function Active-Server2003 {
     $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
     Write-Output "Loading SOFTWARE registry hive from $SoftwarePath"
     reg load HKLM\TEMPHIVE $SoftwarePath
+    try {
+        #check and set value
     
-    #check and set value
+        $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
+        $TargetValue = $TargetValue.Split(' ') | ForEach-Object { [byte]("0x$_") }
     
-    $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
-    $TargetValue = $TargetValue.Split(' ') | ForEach-Object { [byte]("0x$_") }
-    
-    Write-Output "Test if OOBETimer value exists"
-    if (Test-Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents\OOBETimer") {
-        Write-Output "get OOBETimer value"
-        $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer"
-        write-output "OOBETimer value: $OOBETimer"
-        if ($OOBETimer -eq $TargetValue) {
-            Write-Output "OOBETimer value matches the target value"
-        } else {
-            Write-Output "OOBETimer value does not match the target value"
-            Set-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+        Write-Output "Test if OOBETimer value exists"
+        if (Test-Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents\OOBETimer") {
+            Write-Output "get OOBETimer value"
+            $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer"
+            write-output "OOBETimer value: $OOBETimer"
+            if ($OOBETimer -eq $TargetValue) {
+                Write-Output "OOBETimer value matches the target value"
+            }
+            else {
+                Write-Output "OOBETimer value does not match the target value"
+                Set-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+            }
         }
-    } else {
-        Write-Output "OOBETimer does not exist. Creating it now."
-        New-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+        else {
+            Write-Output "OOBETimer does not exist. Creating it now."
+            New-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+        }
+        #set permissions
+        Write-Output "Setting permissions"
+        $acl = Get-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents"
+    
+        # Remove inheritance and copy existing permissions
+        Write-Output "Removing inheritance and copying existing permissions"
+        $acl.SetAccessRuleProtection($True, $True)
+    
+        # Create a new permission set to deny all permissions to SYSTEM
+        Write-Output "Creating a new permission set to deny all permissions to SYSTEM"
+        $permission = New-Object System.Security.AccessControl.RegistryAccessRule ("SYSTEM", "FullControl", "Deny")
+    
+        # Add the new permission to the ACL
+        Write-Output "Adding the new permission to the ACL"
+        $acl.AddAccessRule($permission)
+    
+        # Set the new ACL
+        Write-Output "Setting the new ACL"
+        Set-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -AclObject $acl
+    
+
+
+        reg unload HKLM\TEMPHIVE
+        return $Version
     }
-    #set permissions
-    Write-Output "Setting permissions"
-    $acl = Get-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents"
-    
-    # Remove inheritance and copy existing permissions
-    Write-Output "Removing inheritance and copying existing permissions"
-    $acl.SetAccessRuleProtection($True, $True)
-    
-    # Create a new permission set to deny all permissions to SYSTEM
-    Write-Output "Creating a new permission set to deny all permissions to SYSTEM"
-    $permission = New-Object System.Security.AccessControl.RegistryAccessRule ("SYSTEM","FullControl","Deny")
-    
-    # Add the new permission to the ACL
-    Write-Output "Adding the new permission to the ACL"
-    $acl.AddAccessRule($permission)
-    
-    # Set the new ACL
-    Write-Output "Setting the new ACL"
-    Set-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -AclObject $acl
-    
-
-
-    reg unload HKLM\TEMPHIVE
-    return $Version
-
+    catch {
+        write-warning "Active server 2003 failed. Unmounting Registry hive"
+        reg unload HKLM\TEMPHIVE
+        write-warning $_ | Out-String
+    }
 }
 
 #endregion
