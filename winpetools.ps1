@@ -530,24 +530,27 @@ function Active-Server2003 {
     
         $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
         $TargetValue = $TargetValue.Split(' ') | ForEach-Object { [byte]("0x$_") }
-    
-        Write-Output "Test if OOBETimer value exists"
-        if (Test-Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents\OOBETimer") {
-            Write-Output "get OOBETimer value"
-            $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer"
-            write-output "OOBETimer value: $OOBETimer"
-            if ($OOBETimer -eq $TargetValue) {
-                Write-Output "OOBETimer value matches the target value"
-            }
-            else {
-                Write-Output "OOBETimer value does not match the target value"
-                Set-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
-            }
+
+        Write-Output "get OOBETimer value"
+        try {
+            $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" 
         }
-        else {
+        catch {
+            write-warning "OOBETimer value not found. Create it"
             Write-Output "OOBETimer does not exist. Creating it now."
             New-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+            $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" 
         }
+
+        write-output "OOBETimer value: $OOBETimer"
+        if ($OOBETimer -eq $TargetValue) {
+            Write-Output "OOBETimer value matches the target value"
+        }
+        else {
+            Write-Output "OOBETimer value does not match the target value"
+            Set-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+        }
+
         #set permissions
         Write-Output "Setting permissions"
         $acl = Get-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents"
