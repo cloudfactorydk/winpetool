@@ -542,18 +542,23 @@ function Active-Server2003 {
         New-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
     }
     #set permissions
+    Write-Output "Setting permissions"
     $acl = Get-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents"
     
     # Remove inheritance and copy existing permissions
+    Write-Output "Removing inheritance and copying existing permissions"
     $acl.SetAccessRuleProtection($True, $True)
     
     # Create a new permission set to deny all permissions to SYSTEM
+    Write-Output "Creating a new permission set to deny all permissions to SYSTEM"
     $permission = New-Object System.Security.AccessControl.RegistryAccessRule ("SYSTEM","FullControl","Deny")
     
     # Add the new permission to the ACL
+    Write-Output "Adding the new permission to the ACL"
     $acl.AddAccessRule($permission)
     
     # Set the new ACL
+    Write-Output "Setting the new ACL"
     Set-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -AclObject $acl
     
 
