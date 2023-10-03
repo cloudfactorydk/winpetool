@@ -520,6 +520,7 @@ function Download-Windows-ISO {
     Remove-Job -Job $job
 }
 write-host -ForegroundColor Blue "version 1" 
+pause
 function Active-Server2003 {
     $DismTargetDir = Get-DismTargetDir
     $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
