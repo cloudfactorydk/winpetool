@@ -530,9 +530,12 @@ function Active-Server2003 {
     
     $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
     $TargetValue = $TargetValue.Split(' ') | ForEach-Object { [byte]("0x$_") }
-
+    
+    Write-Output "Test if OOBETimer value exists"
     if (Test-Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents\OOBETimer") {
+        Write-Output "get OOBETimer value"
         $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer"
+        write-output "OOBETimer value: $OOBETimer"
         if ($OOBETimer -eq $TargetValue) {
             Write-Output "OOBETimer value matches the target value"
         } else {
