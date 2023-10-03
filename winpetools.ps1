@@ -529,7 +529,7 @@ function Active-Server2003 {
         #check and set value
     
         $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
-        $TargetValue = $TargetValue.Split(' ') | ForEach-Object { [byte]("0x$_") }
+        $TargetValue = $TargetValueString.Split(' ') | ForEach-Object { [byte]("0x$_") }
 
         Write-Output "get OOBETimer value"
         try {
@@ -577,9 +577,9 @@ function Active-Server2003 {
         return $Version
     }
     catch {
+        write-warning $_ | Out-String
         write-warning "Active server 2003 failed. Unmounting Registry hive"
         reg unload HKLM\TEMPHIVE
-        write-warning $_ | Out-String
     }
 }
 
