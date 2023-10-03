@@ -519,7 +519,43 @@ function Download-Windows-ISO {
     # Remove the job after it's done
     Remove-Job -Job $job
 }
+
+function Active-Server2003 {
+    $DismTargetDir = Get-DismTargetDir
+    $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
+    reg load HKLM\TEMPHIVE $SoftwarePath
     
+    #check and set value
+    $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer"
+    $TargetValue="FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
+    if ($OOBETimer -eq $TargetValue) {
+        Write-Output "OOBETimer value matches the target value"
+    } else {
+        Write-Output "OOBETimer value does not match the target value"
+    }
+    Set-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer" -Value $TargetValue
+    
+    #set permissions
+    $acl = Get-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents"
+    
+    # Remove inheritance and copy existing permissions
+    $acl.SetAccessRuleProtection($True, $True)
+    
+    # Create a new permission set to deny all permissions to SYSTEM
+    $permission = New-Object System.Security.AccessControl.RegistryAccessRule ("SYSTEM","FullControl","Deny")
+    
+    # Add the new permission to the ACL
+    $acl.AddAccessRule($permission)
+    
+    # Set the new ACL
+    Set-Acl -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -AclObject $acl
+    
+
+
+    reg unload HKLM\TEMPHIVE
+    return $Version
+
+}
 
 #endregion
 #region init
@@ -606,6 +642,7 @@ while ($true) {
             "Mount-And-Repair-From-Wim"
             "Repair-BCD"
             "IsUEFI"
+            "Active-Server2003"
             "Reboot"
             "Exit-to-CLI"
             
