@@ -528,7 +528,9 @@ function Active-Server2003 {
     
     #check and set value
     
-    $TargetValue="FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
+    $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
+    $TargetValue = $TargetValue.Split(' ') | ForEach-Object { [byte]("0x$_") }
+
     if (Test-Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents\OOBETimer") {
         $OOBETimer = Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion\WPAEvents" -Name "OOBETimer"
         if ($OOBETimer -eq $TargetValue) {
