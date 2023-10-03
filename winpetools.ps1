@@ -576,7 +576,7 @@ function Active-Server2003 {
 
 
         reg unload HKLM\TEMPHIVE
-        return $Version
+        write-output -foregroundcolor green "Active server 2003 complete"
     }
     catch {
         write-warning $_ | Out-String
