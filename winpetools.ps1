@@ -523,6 +523,7 @@ function Download-Windows-ISO {
 function Active-Server2003 {
     $DismTargetDir = Get-DismTargetDir
     $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
+    Write-Output "Loading SOFTWARE registry hive from $SoftwarePath"
     reg load HKLM\TEMPHIVE $SoftwarePath
     
     #check and set value
