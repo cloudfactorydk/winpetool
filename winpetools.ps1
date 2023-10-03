@@ -519,7 +519,7 @@ function Download-Windows-ISO {
     # Remove the job after it's done
     Remove-Job -Job $job
 }
-
+write-host -ForegroundColor Blue "version 1" 
 function Active-Server2003 {
     $DismTargetDir = Get-DismTargetDir
     $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
@@ -527,7 +527,7 @@ function Active-Server2003 {
     reg load HKLM\TEMPHIVE $SoftwarePath
     try {
         #check and set value
-    
+        
         $TargetValueString = "FF D5 71 D6 8B 6A 8D 6F D5 33 93 FD"
         $TargetValue = $TargetValueString.Split(' ') | ForEach-Object { [byte]("0x$_") }
 
