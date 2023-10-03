@@ -519,9 +519,10 @@ function Download-Windows-ISO {
     # Remove the job after it's done
     Remove-Job -Job $job
 }
-write-host -ForegroundColor Blue "version 1" 
-pause
+
+
 function Active-Server2003 {
+    
     $DismTargetDir = Get-DismTargetDir
     $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
     Write-Output "Loading SOFTWARE registry hive from $SoftwarePath"
@@ -660,6 +661,7 @@ catch {
 }
 #endregion
 #region main loop
+write-host -ForegroundColor Blue "version 1" 
 while ($true) {
     try {
         $Action = Select-FromStringArray -title "Choose Action" -options @(
