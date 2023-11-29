@@ -616,12 +616,13 @@ function Fix-2003-IDEBoot {
     
     Load-Hive -Hive "SYSTEM"
 
-    $Controlsets=Get-ChildItem HKLM:\TEMPHIVE\Control* |select -ExpandProperty PSChildname
+    #fix registry for all controlsets. (easiest way to do it.)
+    $Controlsets=Get-ChildItem HKLM:\TEMPHIVE\Control* |Select-Object -ExpandProperty PSChildname
     
     foreach ($Controlset in $Controlsets) {
         $content = Get-Content $regpath
         $newContent = $content -replace 'REPLACEME', $Controlset
-        $newContent | Out-File -FilePath $tempregpath
+        $newContent | Out-File -FilePath $tempregpath -Force
         Start-Process -FilePath "reg.exe" -ArgumentList "import ""$tempregpath""" -Wait -NoNewWindow
     }
 
