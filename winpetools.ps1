@@ -588,10 +588,18 @@ function Activate-Server2003 {
 }
 
 function Load-Hive {
+    param(
+        [ValidateSet("SOFTWARE", "SYSTEM")]
+        $Hive = "SYSTEM"
+    )
+    if (test-path "HKLM:\TEMPHIVE") {
 
+        Write-Warning "TEMPHIVE already loaded. Unload before reloading new."
+        Unload-Hive
+    }
     $DismTargetDir = Get-DismTargetDir
-    $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
-    Write-Output "Loading SOFTWARE registry hive from $SoftwarePath"
+    $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\$Hive"
+    Write-Output "Loading $Hive registry hive from $SoftwarePath"
     reg load HKLM\TEMPHIVE $SoftwarePath
 }
 
@@ -618,7 +626,7 @@ function Fix-2003-IDEBoot {
         "Pciidex.sys"
     )
     foreach ($Driver in $DriversNeeded) {
-        $driverpath=Join-Path -Path $DriversPath -ChildPath $driver
+        $driverpath = Join-Path -Path $DriversPath -ChildPath $driver
         if (!(Test-Path -Path $driverpath)) {
             write-warning "Driver not found! get it from %SystemRoot%\Driver Cache\I386\Driver.cab"
             write-warning $driverpath
