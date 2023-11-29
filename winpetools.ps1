@@ -642,6 +642,8 @@ function Fix-2003-IDEBoot {
         if (!(Test-Path -Path $driverpath)) {
             write-warning "Driver not found! get it from %SystemRoot%\Driver Cache\I386\Driver.cab"
             write-warning $driverpath
+        }else {
+            Write-Host -ForegroundColor Green "IDE driver found: $Driver"
         }
     }
 }
