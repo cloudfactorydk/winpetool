@@ -611,9 +611,20 @@ function Fix-2003-IDEBoot {
     #solution found here: https://www.luzem.com/2016/02/16/windows-2003-server-physical-to-virt-kvm/
     Write-Output "Downloading MergeIDE.reg file"
     $regpath = Join-Path -Path $env:temp -ChildPath "Mergeide.reg"
+    $tempregpath = Join-Path -Path $env:temp -ChildPath "MergeideTEMP.reg"
     Invoke-RestMethod "https://raw.githubusercontent.com/cloudfactorydk/winpetool/main/Mergeide.reg" | out-file -FilePath $regpath
-    Load-Hive
-    Start-Process -FilePath "reg.exe" -ArgumentList "import ""$regpath"" /s" -Wait
+    
+    Load-Hive -Hive "SYSTEM"
+
+    $Controlsets=Get-ChildItem HKLM:\TEMPHIVE\Control* |select -ExpandProperty PSChildname
+    
+    foreach ($Controlset in $Controlsets) {
+        $content = Get-Content $regpath
+        $newContent = $content -replace 'REPLACEME', $Controlset
+        $newContent | Out-File -FilePath $tempregpath
+        Start-Process -FilePath "reg.exe" -ArgumentList "import ""$tempregpath""" -Wait -NoNewWindow
+    }
+
     Unload-Hive
 
     #check if drivers exists

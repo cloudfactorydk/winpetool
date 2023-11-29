@@ -1,130 +1,132 @@
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\primary_ide_channel]
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\primary_ide_channel]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="atapi"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\secondary_ide_channel]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\secondary_ide_channel]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="atapi"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\*pnp0600]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\*pnp0600]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="atapi"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\*azt0502]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\*azt0502]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="atapi"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\gendisk]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\gendisk]
 "ClassGUID"="{4D36E967-E325-11CE-BFC1-08002BE10318}"
 "Service"="disk"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#cc_0101]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#cc_0101]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_0e11&dev_ae33]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_0e11&dev_ae33]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1039&dev_0601]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1039&dev_0601]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1039&dev_5513]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1039&dev_5513]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1042&dev_1000]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1042&dev_1000]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_105a&dev_4d33]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_105a&dev_4d33]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0640]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0640]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0646]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0646]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0646&REV_05]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0646&REV_05]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0646&REV_07]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0646&REV_07]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0648]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0648]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0649]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1095&dev_0649]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1097&dev_0038]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1097&dev_0038]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_10ad&dev_0001]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_10ad&dev_0001]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_10ad&dev_0150]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_10ad&dev_0150]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_10b9&dev_5215]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_10b9&dev_5215]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_10b9&dev_5219]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_10b9&dev_5219]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_10b9&dev_5229]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_10b9&dev_5229]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="pciide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1106&dev_0571]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_1106&dev_0571]
 "Service"="pciide"
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_1222]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_1222]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_1230]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_1230]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_2411]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_2411]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_2421]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_2421]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_7010]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_7010]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_7111]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_7111]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_8086&dev_7199]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Control\CriticalDeviceDatabase\pci#ven_8086&dev_7199]
 "ClassGUID"="{4D36E96A-E325-11CE-BFC1-08002BE10318}"
 "Service"="intelide"
 
 ;Add driver for Atapi (requires Atapi.sys in Drivers directory)
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Services\atapi]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Services\atapi]
 "ErrorControl"=dword:00000001
 "Group"="SCSI miniport"
 "Start"=dword:00000000
@@ -137,7 +139,7 @@
 
 ;Add driver for intelide (requires intelide.sys in drivers directory)
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Services\IntelIde]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Services\IntelIde]
 "ErrorControl"=dword:00000001
 "Group"="System Bus Extender"
 "Start"=dword:00000000
@@ -150,7 +152,7 @@
 
 ;Add driver for Pciide (requires Pciide.sys and Pciidex.sys in Drivers directory)
 
-[HKEY_LOCAL_MACHINE\TEMPHIVE\ControlSet001\Services\PCIIde]
+[HKEY_LOCAL_MACHINE\TEMPHIVE\REPLACEME\Services\PCIIde]
 "ErrorControl"=dword:00000001
 "Group"="System Bus Extender"
 "Start"=dword:00000000
