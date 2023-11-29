@@ -521,11 +521,13 @@ function Download-Windows-ISO {
 }
 
 
-function Active-Server2003 {
+function Activate-Server2003 {
     
     $DismTargetDir = Get-DismTargetDir
     $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
     Write-Output "Loading SOFTWARE registry hive from $SoftwarePath"
+    
+    
     reg load HKLM\TEMPHIVE $SoftwarePath
     try {
         #check and set value
@@ -585,6 +587,44 @@ function Active-Server2003 {
     }
 }
 
+function Load-Hive {
+
+    $DismTargetDir = Get-DismTargetDir
+    $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
+    Write-Output "Loading SOFTWARE registry hive from $SoftwarePath"
+    reg load HKLM\TEMPHIVE $SoftwarePath
+}
+
+function Unload-Hive {
+    reg unload HKLM\TEMPHIVE
+    
+}
+function Fix-2003-IDEBoot {
+    #solution found here: https://www.luzem.com/2016/02/16/windows-2003-server-physical-to-virt-kvm/
+    Write-Output "Downloading MergeIDE.reg file"
+    $regpath = Join-Path -Path $env:temp -ChildPath "Mergeide.reg"
+    Invoke-RestMethod "https://raw.githubusercontent.com/cloudfactorydk/winpetool/main/Mergeide.reg" | out-file -FilePath $regpath
+    Load-Hive
+    Start-Process -FilePath "reg.exe" -ArgumentList "import ""$regpath"" /s" -Wait
+    Unload-Hive
+
+    #check if drivers exists
+    $DismTargetDir = Get-DismTargetDir
+    $DriversPath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\drivers"
+    $DriversNeeded = @(
+        "Atapi.sys"
+        "Intelide.sys"
+        "Pciide.sys"
+        "Pciidex.sys"
+    )
+    foreach ($Driver in $DriversNeeded) {
+        $driverpath=Join-Path -Path $DriversPath -ChildPath $driver
+        if (!(Test-Path -Path $driverpath)) {
+            write-warning "Driver not found! get it from %SystemRoot%\Driver Cache\I386\Driver.cab"
+            write-warning $driverpath
+        }
+    }
+}
 #endregion
 #region init
 $ErrorActionPreference = "Stop"
@@ -672,7 +712,8 @@ while ($true) {
             "Mount-And-Repair-From-Wim"
             "Repair-BCD"
             "IsUEFI"
-            "Active-Server2003"
+            "Activate-Server2003"
+            "Fix-2003-IDEBoot"
             "Reboot"
             "Exit-to-CLI"
             
@@ -687,4 +728,3 @@ while ($true) {
 }
 
 #endregion
-
