@@ -239,6 +239,9 @@ function Repair-BCD {
     } 
 }
 
+
+
+
 function IsVirtioInstalled {
     $DismTargetDir = Get-DismTargetDir
    
@@ -647,6 +650,18 @@ function Fix-2003-IDEBoot {
         }
     }
 }
+function Disable-DriverSigning {
+    # Enable test signing
+    "bcdedit /set {default} testsigning on"
+    bcdedit /set {default} testsigning on
+    bcdedit 
+}
+function Disable-RecoveryMode {
+    Write-Output "Disabling OS recovery mode"
+    bcdedit /set {default} recoveryenabled No
+}
+
+
 #endregion
 #region init
 $ErrorActionPreference = "Stop"
@@ -736,6 +751,8 @@ while ($true) {
             "IsUEFI"
             "Activate-Server2003"
             "Fix-2003-IDEBoot"
+            "Disable-DriverSigning"
+            "Disable-RecoveryMode"
             "Reboot"
             "Exit-to-CLI"
             
