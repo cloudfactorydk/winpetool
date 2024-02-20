@@ -689,55 +689,56 @@ function Assign-DriveLetters {
     $DiskpartScript | diskpart
 }
 function Check-BrokenBootPartition {
-    $ErrorActionPreference="Stop"
-    try{
-    Write-Host "Checking for broken boot partition"
-    $DismTargetDir = Get-DismTargetDir
+    $ErrorActionPreference = "Stop"
+    try {
+        Write-Host "Checking for broken boot partition"
+        $DismTargetDir = Get-DismTargetDir
+        Write-Host "OS on: $DismTargetDir"
+        #value of  $DismTargetDir is like: "C:\" turn it into "C"
+        $OSDriveletter = $DismTargetDir -replace ":\\", ""
+        Write-Host "OS Driveletter: $OSDriveletter"
 
-    #value of  $DismTargetDir is like: "C:\" turn it into "C"
-    $OSDriveletter = $DismTargetDir -replace ":\\", ""
+        # Get the disk number of drive $OSDriveletter:
+        $diskNumber = (Get-Partition -DriveLetter $OSDriveletter).DiskNumber
 
+        # Get all volumes on the same disk
+        $Parts = Get-Partition | Where-Object { $_.DiskNumber -eq $diskNumber }
 
-    # Get the disk number of drive $OSDriveletter:
-    $diskNumber = (Get-Partition -DriveLetter $OSDriveletter).DiskNumber
-
-    # Get all volumes on the same disk
-    $Parts = Get-Partition | Where-Object { $_.DiskNumber -eq $diskNumber }
-
-    $Volumes = foreach ($part in $parts) {
-        $volume = Get-Volume -Partition $part
+        $Volumes = foreach ($part in $parts) {
+            $volume = Get-Volume -Partition $part
     
-        [PSCustomObject]@{
-            Part        = $Partdisk
-            DriveType   = $part.DriveType
-            Size        = $part.Size #104857600
-            DriveLetter = DriveLErLetter = $Volume.DriveLetter
-            FileSystem  = $volume.FileSystemType
+            [PSCustomObject]@{
+                Part        = $Partdisk
+                DriveType   = $part.DriveType
+                Size        = $part.Size #104857600
+                DriveLetter = DriveLErLetter = $Volume.DriveLetter
+                FileSystem  = $volume.FileSystemType
+            }
+        }
+
+        #check if volume is boot partition
+        foreach ($Volume in $Volumes) {
+            if ($Volume.DriveType -eq 'Fixed' -and $Volume.FileSystem -eq 'Unknown' -and $volume.size -eq 104857600) {
+                Write-Host "Volume is:"
+                write-host "- on same disk as boot OS."
+                write-host "- 100MB size"
+                write-host "- Unknown file system (RAW)"
+                write-host -ForegroundColor Red "Volume is a broken boot partition. Reformatting to FAT32, and repairing BCD Store"
+                $Volume
+        
+                #format volume to FAT32
+                Format-Volume -FileSystem FAT32 -Force -Confirm:$false
+        
+                #assign drive letter to next available. like diskpart does
+                Assign-DriveLetters
+
+            }
         }
     }
-
-    #check if volume is boot partition
-    foreach ($Volume in $Volumes) {
-        if ($Volume.DriveType -eq 'Fixed' -and $Volume.FileSystem -eq 'Unknown' -and $volume.size -eq 104857600) {
-            Write-Host "Volume is:"
-            write-host "- on same disk as boot OS."
-            write-host "- 100MB size"
-            write-host "- Unknown file system (RAW)"
-            write-host -ForegroundColor Red "Volume is a broken boot partition. Reformatting to FAT32, and repairing BCD Store"
-            $Volume
-        
-            #format volume to FAT32
-            Format-Volume -FileSystem FAT32 -Force -Confirm:$false
-        
-            #assign drive letter to next available. like diskpart does
-            Assign-DriveLetters
-
-        }
+    catch {
+        write-host -ForegroundColor Red -Object  ($_ | Out-String)
+        pause
     }
-}catch{
-    write-host -ForegroundColor Red -Object  ($_ | Out-String)
-    pause
-}
 
 }
 }
@@ -756,6 +757,7 @@ $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
 Assign-DriveLetters
 
 #Check for broken boot partition
+$ErrorActionPreference = "Stop"
 Check-BrokenBootPartition
 
 Write-Output "Checking if virtio is installed"
