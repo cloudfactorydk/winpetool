@@ -713,7 +713,7 @@ try {
                 Part        = $Partdisk
                 DriveType   = $part.DriveType
                 Size        = $part.Size #104857600
-                DriveLetter = DriveLErLetter = $Volume.DriveLetter
+                DriveLetter = $Volume.DriveLetter
                 FileSystem  = $volume.FileSystemType
             }
         }
