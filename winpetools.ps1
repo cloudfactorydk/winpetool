@@ -690,9 +690,14 @@ function Assign-DriveLetters {
 }
 function Check-BrokenBootPartition {
     Write-Host "Checking for broken boot partition"
+    $DismTargetDir = Get-DismTargetDir
 
-    # Get the disk number of drive F:
-    $diskNumber = (Get-Partition -DriveLetter c).DiskNumber
+    #value of  $DismTargetDir is like: "C:\" turn it into "C"
+    $OSDriveletter = $DismTargetDir -replace ":\\", ""
+
+
+    # Get the disk number of drive $OSDriveletter:
+    $diskNumber = (Get-Partition -DriveLetter $OSDriveletter).DiskNumber
 
     # Get all volumes on the same disk
     $Parts = Get-Partition | Where-Object { $_.DiskNumber -eq $diskNumber }
@@ -778,7 +783,7 @@ try {
         write-host -ForegroundColor "Green" "Repairing BCD store"
         Repair-BCD
         write-host -ForegroundColor "Green" "BCD store is repaired."
-        bcdedit
+        
     }
 }
 catch {
