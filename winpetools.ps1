@@ -620,7 +620,7 @@ function Fix-2003-IDEBoot {
     Load-Hive -Hive "SYSTEM"
 
     #fix registry for all controlsets. (easiest way to do it.)
-    $Controlsets=Get-ChildItem HKLM:\TEMPHIVE\Control* |Select-Object -ExpandProperty PSChildname
+    $Controlsets = Get-ChildItem HKLM:\TEMPHIVE\Control* | Select-Object -ExpandProperty PSChildname
     
     foreach ($Controlset in $Controlsets) {
         $content = Get-Content $regpath
@@ -645,7 +645,8 @@ function Fix-2003-IDEBoot {
         if (!(Test-Path -Path $driverpath)) {
             write-warning "Driver not found! get it from %SystemRoot%\Driver Cache\I386\Driver.cab"
             write-warning $driverpath
-        }else {
+        }
+        else {
             Write-Host -ForegroundColor Green "IDE driver found: $Driver"
         }
     }
@@ -653,14 +654,80 @@ function Fix-2003-IDEBoot {
 function Disable-DriverSigning {
     # Enable test signing
     "bcdedit /set {default} testsigning on"
-    bcdedit /set {default} testsigning on
+    bcdedit /set { default } testsigning on
     bcdedit 
 }
 function Disable-RecoveryMode {
     Write-Output "Disabling OS recovery mode"
-    bcdedit /set {default} recoveryenabled No
+    bcdedit /set { default } recoveryenabled No
 }
+function Assign-DriveLetters {
+    Write-Output "Assigning drive letters to all volumes"
+    $DiskpartScript = @()
+    $DiskpartScript += "select vol 0"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 1"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 2"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 3"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 4"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 5"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 6"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 7"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 8"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "select vol 9"
+    $DiskpartScript += "assign"
+    $DiskpartScript += "list vol"
+    $DiskpartScript += "exit"
+    $DiskpartScript | diskpart
+}
+function Check-BrokenBootPartition {
+    Write-Host "Checking for broken boot partition"
 
+    # Get the disk number of drive F:
+    $diskNumber = (Get-Partition -DriveLetter c).DiskNumber
+
+    # Get all volumes on the same disk
+    $Parts = Get-Partition | Where-Object { $_.DiskNumber -eq $diskNumber }
+
+    $Volumes = foreach ($part in $parts) {
+        $volume = Get-Volume -Partition $part
+    
+        [PSCustomObject]@{
+            Part        = $Partdisk
+            DriveType   = $part.DriveType
+            Size        = $part.Size #104857600
+            DriveLetter = DriveLErLetter = $Volume.DriveLetter
+            FileSystem  = $volume.FileSystemType
+        }
+    }
+
+    #check if volume is boot partition
+    foreach ($Volume in $Volumes) {
+        if ($Volume.DriveType -eq 'Fixed' -and $Volume.FileSystem -eq 'Unknown' -and $volume.size -eq 104857600) {
+            Write-Host "Volume is:"
+            write-host "- on same disk as boot OS."
+            write-host "- 100MB size"
+            write-host "- Unknown file system (RAW)"
+            write-host -ForegroundColor Red "Volume is a broken boot partition. Reformatting to FAT32, and repairing BCD Store"
+            $Volume
+        
+            #format volume to FAT32
+            Format-Volume -FileSystem FAT32 -Force -Confirm:$false
+        
+            #assign drive letter to next available. like diskpart does
+            Assign-DriveLetters
+
+        }
+    }
+}
 
 #endregion
 #region init
@@ -671,31 +738,12 @@ $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
 #endregion
 
 #region selfheal
-Write-Output "Assigning drive letters to all volumes"
-$DiskpartScript = @()
-$DiskpartScript += "select vol 0"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 1"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 2"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 3"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 4"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 5"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 6"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 7"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 8"
-$DiskpartScript += "assign"
-$DiskpartScript += "select vol 9"
-$DiskpartScript += "assign"
-$DiskpartScript += "list vol"
-$DiskpartScript += "exit"
-$DiskpartScript | diskpart
+
+#Assign-DriveLetters to all volumes
+Assign-DriveLetters
+
+#Check for broken boot partition
+Check-BrokenBootPartition
 
 Write-Output "Checking if virtio is installed"
 
@@ -730,6 +778,7 @@ try {
         write-host -ForegroundColor "Green" "Repairing BCD store"
         Repair-BCD
         write-host -ForegroundColor "Green" "BCD store is repaired."
+        bcdedit
     }
 }
 catch {
