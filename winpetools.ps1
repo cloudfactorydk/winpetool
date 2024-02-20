@@ -689,6 +689,7 @@ function Assign-DriveLetters {
     $DiskpartScript | diskpart
 }
 function Check-BrokenBootPartition {
+    $ErrorActionPreference="Stop"
     try{
     Write-Host "Checking for broken boot partition"
     $DismTargetDir = Get-DismTargetDir
