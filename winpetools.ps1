@@ -1,5 +1,5 @@
 #Find me here: GIT/PSScripts/WINPE VirtIO injection ISO/winpetools.ps1
-Write-Host -ForegroundColor Blue "Updated 20/2-2024 15:22"
+
 try {
     #region functions
 
@@ -710,14 +710,15 @@ try {
             $volume = Get-Volume -Partition $part
     
             [PSCustomObject]@{
-                Part        = $Partdisk
-                DriveType   = $part.DriveType
+                Part        = $Part
+                DriveType   = $volume.DriveType
                 Size        = $part.Size #104857600
                 DriveLetter = $Volume.DriveLetter
                 FileSystem  = $volume.FileSystemType
             }
         }
-
+        
+       
         #check if volume is boot partition
         foreach ($Volume in $Volumes) {
             if ($Volume.DriveType -eq 'Fixed' -and $Volume.FileSystem -eq 'Unknown' -and $volume.size -eq 104857600) {
@@ -729,7 +730,7 @@ try {
                 $Volume
         
                 #format volume to FAT32
-                Format-Volume -FileSystem FAT32 -Force -Confirm:$false
+                Format-Volume -Partition $volume.part -FileSystem FAT32 -Force -Confirm:$false
         
                 #assign drive letter to next available. like diskpart does
                 Assign-DriveLetters
