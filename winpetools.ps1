@@ -445,9 +445,11 @@ try {
         param (
             $OSVersion
         )
-    
+        write-host "Getting link from OS version: $OSVersion"
         #more specific names first. Like 2012 R2 before 2012
+        #link: https://admin.microsoft.com/Adminportal/Home#/subscriptions/vlnew/downloadsandkeys
         $Mapping = @{
+            'Windows 7' = "123"
             2022      = "https://www.dropbox.com/scl/fi/hc2oupby2evxxqqnjxkox/install.wim?rlkey=y42rwfmetz0y9ms1e1zcl8p3n&dl=1"
             2019      = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
             2016      = "https://www.dropbox.com/scl/fi/cafgqkcd6rzrhnc565nfj/install.wim?rlkey=rsqw6k371on3gj8hucr2wpw1g&dl=1"
@@ -741,7 +743,50 @@ try {
 
     }
 
+    function AutoInstallVirtIO {
+        $VirtioInstalled = IsVirtioInstalled
 
+        if ($VirtioInstalled) {
+            Write-host -ForegroundColor "Green" "Virtio is installed"
+        }
+        else {
+            try {
+                Write-host -ForegroundColor "Yellow" "Virtio is not installed."
+                Write-Output "Getting Windows version"
+
+                $InstalledOSVersion = Get-InstalledWindowsVersion
+                write-output "Installed Windows version: $InstalledOSVersion"
+                Write-Output "injecting virtio"
+                Inject-VirtIO -OSVersion $InstalledOSVersion
+            }
+            catch {
+                write-warning "Auto install of virtio failed."
+                Write-Warning $_ | Out-String
+            }
+        }
+
+    }
+
+    function AutoFix-BCD {
+        try {
+            write-output "Validating BCD store"
+            $BCDValid = Test-BCD
+            if ($BCDValid) {
+                write-host -ForegroundColor "Green" "BCD store is valid"
+            }
+            else {
+                write-host -ForegroundColor "yellow" "BCD store is not valid"
+                write-host -ForegroundColor "Green" "Repairing BCD store"
+                Repair-BCD
+                write-host -ForegroundColor "Green" "BCD store is repaired."
+            
+            }
+        }
+        catch {
+            write-warning "BCD store validation failed."
+            Write-Warning $_ | Out-String
+        }
+    }
     #endregion
     #region init
     $ErrorActionPreference = "Stop"
@@ -759,45 +804,10 @@ try {
     Check-BrokenBootPartition
 
     Write-Output "Checking if virtio is installed"
+    AutoInstallVirtIO
 
-    $VirtioInstalled = IsVirtioInstalled
+    AutoFix-BCD
 
-    if ($VirtioInstalled) {
-        Write-host -ForegroundColor "Green" "Virtio is installed"
-    }
-    else {
-        try {
-            Write-host -ForegroundColor "Yellow" "Virtio is not installed."
-            Write-Output "Getting Windows version"
-
-            $InstalledOSVersion = Get-InstalledWindowsVersion
-            write-output "Installed Windows version: $InstalledOSVersion"
-            Write-Output "injecting virtio"
-            Inject-VirtIO -OSVersion $InstalledOSVersion
-        }
-        catch {
-            write-warning "Auto install of virtio failed."
-            Write-Warning $_ | Out-String
-        }
-    }
-    try {
-        write-output "Validating BCD store"
-        $BCDValid = Test-BCD
-        if ($BCDValid) {
-            write-host -ForegroundColor "Green" "BCD store is valid"
-        }
-        else {
-            write-host -ForegroundColor "yellow" "BCD store is not valid"
-            write-host -ForegroundColor "Green" "Repairing BCD store"
-            Repair-BCD
-            write-host -ForegroundColor "Green" "BCD store is repaired."
-        
-        }
-    }
-    catch {
-        write-warning "BCD store validation failed."
-        Write-Warning $_ | Out-String
-    }
     #endregion
     #region main loop
 
