@@ -1,5 +1,5 @@
 #Find me here: GIT/PSScripts/WINPE VirtIO injection ISO/winpetools.ps1
-Write-Host -ForegroundColor Blue "Updated 20/2-2024 15:18"
+Write-Host -ForegroundColor Blue "Updated 20/2-2024 15:22"
 try {
     #region functions
 
@@ -833,3 +833,4 @@ catch {
     write-host -ForegroundColor Red -Object  ($_ | Out-String)
     pause
 }
+#https://www.dropbox.com/scl/fi/kg0ehjwdfnf0n4i9za012/winpetools.ps1?rlkey=p0bzli3c5a7cw3npxui7fggxl&dl=1
