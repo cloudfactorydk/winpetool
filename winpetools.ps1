@@ -690,6 +690,7 @@ function Assign-DriveLetters {
 }
 function Check-BrokenBootPartition {
     $ErrorActionPreference = "Stop"
+    Write-Host -ForegroundColor Blue "Version 1"
     try {
         Write-Host "Checking for broken boot partition"
         $DismTargetDir = Get-DismTargetDir
