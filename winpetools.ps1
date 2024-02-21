@@ -450,11 +450,11 @@ try {
         #link: https://admin.microsoft.com/Adminportal/Home#/subscriptions/vlnew/downloadsandkeys
         $Mapping = @{
             'Windows 7' = "https://www.dropbox.com/scl/fi/y43wfppku74kh52p8be4p/install.wim?rlkey=a6li0ja5v2d0x4m2zoxaid1nm&dl=1"
-            2022      = "https://www.dropbox.com/scl/fi/hc2oupby2evxxqqnjxkox/install.wim?rlkey=y42rwfmetz0y9ms1e1zcl8p3n&dl=1"
-            2019      = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
-            2016      = "https://www.dropbox.com/scl/fi/cafgqkcd6rzrhnc565nfj/install.wim?rlkey=rsqw6k371on3gj8hucr2wpw1g&dl=1"
-            '2012 R2' = "https://www.dropbox.com/scl/fi/owdrhifw2p6f3jjoc4hmj/install.wim?rlkey=ct24e3loqq6ri7sytggzsgyvz&dl=1"
-            2012      = "https://www.dropbox.com/scl/fi/l8a260ovdsmrm6j78dp4z/install.wim?rlkey=5gxnivcil1q8xqskpdk8elj4i&dl=1"
+            2022        = "https://www.dropbox.com/scl/fi/hc2oupby2evxxqqnjxkox/install.wim?rlkey=y42rwfmetz0y9ms1e1zcl8p3n&dl=1"
+            2019        = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
+            2016        = "https://www.dropbox.com/scl/fi/cafgqkcd6rzrhnc565nfj/install.wim?rlkey=rsqw6k371on3gj8hucr2wpw1g&dl=1"
+            '2012 R2'   = "https://www.dropbox.com/scl/fi/owdrhifw2p6f3jjoc4hmj/install.wim?rlkey=ct24e3loqq6ri7sytggzsgyvz&dl=1"
+            2012        = "https://www.dropbox.com/scl/fi/l8a260ovdsmrm6j78dp4z/install.wim?rlkey=5gxnivcil1q8xqskpdk8elj4i&dl=1"
 
         }
 
@@ -787,6 +787,16 @@ try {
             Write-Warning $_ | Out-String
         }
     }
+
+    function Remove-Pending-Updates {
+        $DismTargetDir = Get-DismTargetDir
+        $DownloadFolder = Join-Path -Path $DismTargetDir -ChildPath "CloudFactory"
+        Write-Output "Removing pending Windows Updates"
+        Dism /Image:$DismTargetDir /cleanup-image /revertpendingactions
+
+
+    }
+    
     #endregion
     #region init
     $ErrorActionPreference = "Stop"
@@ -817,6 +827,7 @@ try {
             $Action = Select-FromStringArray -title "Choose Action" -options @(
                 "Inject-VirtIO"
                 "Inject-VirtIOKBFor2008R2"
+                "Remove-Pending-Updates"
                 "Mount-Install-WIM"
                 "Mount-And-Repair-From-Wim"
                 "Repair-BCD"
