@@ -449,7 +449,7 @@ try {
         #more specific names first. Like 2012 R2 before 2012
         #link: https://admin.microsoft.com/Adminportal/Home#/subscriptions/vlnew/downloadsandkeys
         $Mapping = @{
-            'Windows 7' = "123"
+            'Windows 7' = "https://www.dropbox.com/scl/fi/ue52ej02hph74484rnj77/install.wim?rlkey=np8gm20bgqd3zvvq7lboaewyk&dl=1"
             2022      = "https://www.dropbox.com/scl/fi/hc2oupby2evxxqqnjxkox/install.wim?rlkey=y42rwfmetz0y9ms1e1zcl8p3n&dl=1"
             2019      = "https://www.dropbox.com/scl/fi/0k79s60h8d5verq17ai23/install.wim?rlkey=7bqru2cdsxd4zj3laafr0eu2g&dl=1"
             2016      = "https://www.dropbox.com/scl/fi/cafgqkcd6rzrhnc565nfj/install.wim?rlkey=rsqw6k371on3gj8hucr2wpw1g&dl=1"
