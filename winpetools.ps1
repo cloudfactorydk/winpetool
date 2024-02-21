@@ -806,6 +806,31 @@ try {
     #endregion
 
     #region selfheal
+    #get installed windows kbs from dism
+    function Remove-Selected-WindowsPackage {
+        $DismTargetDir = Get-DismTargetDir
+        Write-Host "Getting installed KBs sorted by installtime"
+        $InstalledKbs = Get-WindowsPackage -Path $DismTargetDir|select -first 30 | Sort-Object InstallTime -Descending
+        
+        $InstalledKbs | ForEach-Object -Begin { $i = 1 } -Process {
+            $_ | Add-Member -NotePropertyName "Index" -NotePropertyValue $i -Force
+            $i++
+        }
+        Write-Host -ForegroundColor Yellow "Showing 30 newest updates installed on image"
+        $InstalledKbs | Format-Table -Property Index,InstallTime,ReleaseType,PackageState,PackageName -AutoSize
+    
+        $selectedNumber = Read-Host "Enter the number of the package to remove"
+        
+        $selectedKb = $InstalledKbs[$selectedNumber - 1]
+    
+        Write-Host "Removing package:"
+        Write-Host ($selectedKb|Out-String)
+        pause
+        Write-Host -ForegroundColor Yellow "Press enter to remove package"
+        Remove-WindowsPackage -Path $DismTargetDir -PackageName $selectedKb.PackageName
+    }
+    
+    
 
     #Assign-DriveLetters to all volumes
     Assign-DriveLetters
@@ -828,6 +853,7 @@ try {
                 "Inject-VirtIO"
                 "Inject-VirtIOKBFor2008R2"
                 "Remove-Pending-Updates"
+                "Remove-Selected-WindowsPackage"
                 "Mount-Install-WIM"
                 "Mount-And-Repair-From-Wim"
                 "Repair-BCD"
