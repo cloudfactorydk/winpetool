@@ -169,6 +169,29 @@ try {
     }
 
     function IsUEFI {
+        #region get disk layout
+
+        #Write-Host "getting disk layout"
+        $DismTargetDir = Get-DismTargetDir
+        #Write-Host "OS on: $DismTargetDir"
+        #value of  $DismTargetDir is like: "C:\" turn it into "C"
+        $OSDriveletter = $DismTargetDir -replace ":\\", ""
+        #Write-Host "OS Driveletter: $OSDriveletter"
+
+        # Get the disk number of drive $OSDriveletter:
+        $diskNumber = (Get-Partition -DriveLetter $OSDriveletter).DiskNumber
+        $PartitionStyle=Get-Disk | ? Number -eq $diskNumber | select -ExpandProperty PartitionStyle
+        if ($PartitionStyle -eq "GPT") {
+            #write-host "Computer is running in UEFI boot mode."
+            return $true
+        }
+        else {
+            #write-host "Computer is running in Legacy boot mode."
+            return $false
+        }
+
+        #endregion
+
         $BootMode = bcdedit | Select-String "path.*efi"
         if ($null -eq $BootMode) {
             # I think non-uefi is \Windows\System32\winload.exe
