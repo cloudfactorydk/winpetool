@@ -823,7 +823,7 @@ try {
 
     }
     function IsUEFIBooted {
-        $PEFirmwareType = Get-ItemProperty -Path hklm: \system\currentcontrolset\control | select -ExpandProperty PEFirmwareType
+        $PEFirmwareType = Get-ItemProperty -Path "hklm:\system\currentcontrolset\control" | select -ExpandProperty PEFirmwareType
         switch ($PEFirmwareType) {
             1 { return $false }
             2 { return $true }
