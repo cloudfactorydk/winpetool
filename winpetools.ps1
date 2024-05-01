@@ -844,7 +844,7 @@ try {
         Write-Host "OS Operational Status: $OSOperationalStatus"
         if ($OSOperationalStatus -ne "Full Repair Needed"){return}
         Write-Host "OS filesystem needs to be scanned and repaired"
-        Write-Host "Press S to scan and repair filesystem"
+        Write-Host "Press S to scan and repair filesystem, press any other key to skip"
         $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         if ($key.Character -eq "s") {
             Write-Host "Scanning and repairing filesystem"
