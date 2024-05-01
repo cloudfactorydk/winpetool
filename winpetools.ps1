@@ -689,7 +689,7 @@ try {
     }
     function Disable-RecoveryMode {
         Write-Output "Disabling OS recovery mode"
-        bcdedit /set { default } recoveryenabled No
+        bcdedit /set {default} recoveryenabled No
     }
     function Assign-DriveLetters {
         Write-Output "Assigning drive letters to all volumes"
@@ -833,6 +833,28 @@ try {
         }
     }
     
+    function Check-Filesystem{
+        Write-Host "Checking OS filesystem" 
+        $DismTargetDir = Get-DismTargetDir
+        Write-Host "OS on: $DismTargetDir"
+        #value of  $DismTargetDir is like: "C:\" turn it into "C"
+        $OSDriveletter = $DismTargetDir -replace ":\\", ""
+        Write-Host "OS Driveletter: $OSDriveletter"
+        $OSOperationalStatus=Get-Volume $OSDriveletter | select -ExpandProperty OperationalStatus
+        Write-Host "OS Operational Status: $OSOperationalStatus"
+        if ($OSOperationalStatus -ne "Full Repair Needed"){return}
+        Write-Host "OS filesystem needs to be scanned and repaired"
+        Write-Host "Press S to scan and repair filesystem"
+        $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        if ($key.Character -eq "s") {
+            Write-Host "Scanning and repairing filesystem"
+            chkdsk /f /r /x /offlinescanandfix $($OSDriveletter):
+        }else{
+            Write-Host "Skipping filesystem scan"
+        }
+
+        
+    }
     #endregion
     #region init
     $ErrorActionPreference = "Stop"
@@ -871,6 +893,9 @@ try {
     #Assign-DriveLetters to all volumes
     Assign-DriveLetters
 
+    #Check if server is booted on the correct bootmode.
+    #compare bootmode of guest os with bootmode of server
+
     if (IsUEFI) {
         Write-Output "Guest OS is running in UEFI boot mode."
         Write-Output "Check if server is booted in UEFI mode"
@@ -882,8 +907,6 @@ try {
         #Check for broken boot partition
         Write-Output "Validating Boot partition"
         Check-BrokenEFIBootPartition
-
-        AutoFix-BCD
     }
     else {
         Write-Output "Guest OS is running in Legacy boot mode."
@@ -893,9 +916,11 @@ try {
             pause
         }
         Write-Output "Server is booted in Legacy"
-
     }
 
+    AutoFix-BCD
+
+    Check-Filesystem
 
     Write-Output "Checking if virtio is installed"
     AutoInstallVirtIO
