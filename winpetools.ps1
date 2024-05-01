@@ -848,7 +848,7 @@ try {
         $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         if ($key.Character -eq "s") {
             Write-Host "Scanning and repairing filesystem"
-            chkdsk /f /r /x /offlinescanandfix $($OSDriveletter):
+            Start-Process -Wait -NoNewWindow -FilePath "chkdsk" -ArgumentList "/f /r /x /offlinescanandfix $($OSDriveletter):"
         }else{
             Write-Host "Skipping filesystem scan"
         }
