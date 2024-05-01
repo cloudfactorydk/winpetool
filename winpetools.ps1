@@ -6,7 +6,9 @@ try {
     Function Get-DismTargetDir {
         $Driveletters = Get-Volume | ? drivetype -ne "CD-ROM" | select -ExpandProperty DriveLetter
         $WindowsDirs = foreach ($Driveletter in $Driveletters) {
+            try{
             Get-ChildItem "$($Driveletter):\"  | ? name -eq "Windows" | select -ExpandProperty FullName 
+        }catch{}
         }
 
         switch ($WindowsDirs | Measure-Object | select -ExpandProperty count) {
@@ -182,11 +184,11 @@ try {
         $diskNumber = (Get-Partition -DriveLetter $OSDriveletter).DiskNumber
         $PartitionStyle=Get-Disk | ? Number -eq $diskNumber | select -ExpandProperty PartitionStyle
         if ($PartitionStyle -eq "GPT") {
-            #write-host "Computer is running in UEFI boot mode."
+            #write-host "Guest OS is running in UEFI boot mode."
             return $true
         }
         else {
-            #write-host "Computer is running in Legacy boot mode."
+            #write-host "Guest OS is running in Legacy boot mode."
             return $false
         }
 
@@ -196,7 +198,7 @@ try {
         if ($null -eq $BootMode) {
             # I think non-uefi is \Windows\System32\winload.exe
             $BootMode = "Legacy"
-            write-host "Computer is running in $BootMode boot mode."
+            write-host "Guest OS is running in $BootMode boot mode."
             return $false
         }
         else {
@@ -204,11 +206,11 @@ try {
             #path                    \EFI\MICROSOFT\BOOT\BOOTMGFW.EFI
             #path                    \Windows\system32\winload.efi
             $BootMode = "UEFI"
-            write-host "Computer is running in $BootMode boot mode."
+            write-host "Guest OS is running in $BootMode boot mode."
             return $true
         }
 
-        Write-Host "Computer is running in $BootMode boot mode."
+        Write-Host "Guest OS is running in $BootMode boot mode."
     }
     Function Repair-BCD-OLD {
         # Create a new BCD store
@@ -715,7 +717,7 @@ try {
         $DiskpartScript += "exit"
         $DiskpartScript | diskpart
     }
-    function Check-BrokenBootPartition {
+    function Check-BrokenEFIBootPartition {
 
     
         Write-Host "Checking for broken boot partition"
@@ -819,6 +821,16 @@ try {
 
 
     }
+    function IsUEFIBooted{
+        $PEFirmwareType= Get-ItemProperty -Path hklm: \system\currentcontrolset\control|select -ExpandProperty PEFirmwareType
+        switch($PEFirmwareType)
+        {
+            1 {return $false}
+            2 {return $true}
+
+            default {throw "Unknown PEFirmwareType"}
+        
+    }
     
     #endregion
     #region init
@@ -858,13 +870,36 @@ try {
     #Assign-DriveLetters to all volumes
     Assign-DriveLetters
 
-    #Check for broken boot partition
-    Check-BrokenBootPartition
+    if (IsUEFI){
+        Write-Output "Guest OS is running in UEFI boot mode."
+        Write-Output "Check if server is booted in UEFI mode"
+        if(!IsUEFIBooted){
+            Write-Host -ForegroundColor DarkCyan "Guest OS is running in UEFI boot mode, but server is booted in Legacy mode."
+            pause
+        }
+        Write-Output "Server is booted in UEFI"
+        #Check for broken boot partition
+        Write-Output "Validating Boot partition"
+        Check-BrokenEFIBootPartition
+
+        AutoFix-BCD
+    }
+    else {
+        Write-Output "Guest OS is running in Legacy boot mode."
+        Write-Output "Check if server is booted in Legacy boot mode"
+        if(IsUEFIBooted){
+            Write-Host -ForegroundColor DarkCyan "Guest OS is running in Legacy boot mode, but server is booted in UEFI mode."
+            pause
+        }
+        Write-Output "Server is booted in Legacy"
+
+    }
+
 
     Write-Output "Checking if virtio is installed"
     AutoInstallVirtIO
 
-    AutoFix-BCD
+    
 
     #endregion
     #region main loop
