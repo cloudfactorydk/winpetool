@@ -6,9 +6,10 @@ try {
     Function Get-DismTargetDir {
         $Driveletters = Get-Volume | ? drivetype -ne "CD-ROM" | select -ExpandProperty DriveLetter
         $WindowsDirs = foreach ($Driveletter in $Driveletters) {
-            try{
-            Get-ChildItem "$($Driveletter):\"  | ? name -eq "Windows" | select -ExpandProperty FullName 
-        }catch{}
+            try {
+                Get-ChildItem "$($Driveletter):\"  | ? name -eq "Windows" | select -ExpandProperty FullName 
+            }
+            catch {}
         }
 
         switch ($WindowsDirs | Measure-Object | select -ExpandProperty count) {
@@ -182,7 +183,7 @@ try {
 
         # Get the disk number of drive $OSDriveletter:
         $diskNumber = (Get-Partition -DriveLetter $OSDriveletter).DiskNumber
-        $PartitionStyle=Get-Disk | ? Number -eq $diskNumber | select -ExpandProperty PartitionStyle
+        $PartitionStyle = Get-Disk | ? Number -eq $diskNumber | select -ExpandProperty PartitionStyle
         if ($PartitionStyle -eq "GPT") {
             #write-host "Guest OS is running in UEFI boot mode."
             return $true
@@ -821,15 +822,15 @@ try {
 
 
     }
-    function IsUEFIBooted{
-        $PEFirmwareType= Get-ItemProperty -Path hklm: \system\currentcontrolset\control|select -ExpandProperty PEFirmwareType
-        switch($PEFirmwareType)
-        {
-            1 {return $false}
-            2 {return $true}
+    function IsUEFIBooted {
+        $PEFirmwareType = Get-ItemProperty -Path hklm: \system\currentcontrolset\control | select -ExpandProperty PEFirmwareType
+        switch ($PEFirmwareType) {
+            1 { return $false }
+            2 { return $true }
 
-            default {throw "Unknown PEFirmwareType"}
+            default { throw "Unknown PEFirmwareType" }
         
+        }
     }
     
     #endregion
@@ -845,21 +846,21 @@ try {
     function Remove-Selected-WindowsPackage {
         $DismTargetDir = Get-DismTargetDir
         Write-Host "Getting installed KBs sorted by installtime"
-        $InstalledKbs = Get-WindowsPackage -Path $DismTargetDir|select -first 30 | Sort-Object InstallTime -Descending
+        $InstalledKbs = Get-WindowsPackage -Path $DismTargetDir | select -first 30 | Sort-Object InstallTime -Descending
         
         $InstalledKbs | ForEach-Object -Begin { $i = 1 } -Process {
             $_ | Add-Member -NotePropertyName "Index" -NotePropertyValue $i -Force
             $i++
         }
         Write-Host -ForegroundColor Yellow "Showing 30 newest updates installed on image"
-        $InstalledKbs | Format-Table -Property Index,InstallTime,ReleaseType,PackageState,PackageName -AutoSize
+        $InstalledKbs | Format-Table -Property Index, InstallTime, ReleaseType, PackageState, PackageName -AutoSize
     
         $selectedNumber = Read-Host "Enter the number of the package to remove"
         
         $selectedKb = $InstalledKbs[$selectedNumber - 1]
     
         Write-Host "Removing package:"
-        Write-Host ($selectedKb|Out-String)
+        Write-Host ($selectedKb | Out-String)
         pause
         Write-Host -ForegroundColor Yellow "Press enter to remove package"
         Remove-WindowsPackage -Path $DismTargetDir -PackageName $selectedKb.PackageName
@@ -870,10 +871,10 @@ try {
     #Assign-DriveLetters to all volumes
     Assign-DriveLetters
 
-    if (IsUEFI){
+    if (IsUEFI) {
         Write-Output "Guest OS is running in UEFI boot mode."
         Write-Output "Check if server is booted in UEFI mode"
-        if(!IsUEFIBooted){
+        if (!IsUEFIBooted) {
             Write-Host -ForegroundColor DarkCyan "Guest OS is running in UEFI boot mode, but server is booted in Legacy mode."
             pause
         }
@@ -887,7 +888,7 @@ try {
     else {
         Write-Output "Guest OS is running in Legacy boot mode."
         Write-Output "Check if server is booted in Legacy boot mode"
-        if(IsUEFIBooted){
+        if (IsUEFIBooted) {
             Write-Host -ForegroundColor DarkCyan "Guest OS is running in Legacy boot mode, but server is booted in UEFI mode."
             pause
         }
