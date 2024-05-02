@@ -463,6 +463,9 @@ try {
         $SoftwarePath = Join-Path -Path $DismTargetDir -ChildPath "Windows\system32\config\SOFTWARE"
         reg load HKLM\TEMPHIVE $SoftwarePath
         $Version = (Get-ItemProperty -Path "HKLM:\TEMPHIVE\Microsoft\Windows NT\CurrentVersion" -Name "ProductName").ProductName
+        if (!($Version)) {
+            write-warning "Cant find windows version. Registry is probably corrupt."
+        }
         reg unload HKLM\TEMPHIVE
         return $Version
     }
@@ -483,6 +486,12 @@ try {
             2012        = "https://www.dropbox.com/scl/fi/l8a260ovdsmrm6j78dp4z/install.wim?rlkey=5gxnivcil1q8xqskpdk8elj4i&dl=1"
 
         }
+        if (!($OSVersion)) {
+            
+            $OSVersion = Select-FromStringArray -title "Select OS version" -options $Mapping.Keys
+        }
+        
+
 
         # Iterate over the keys in the mapping
         foreach ($key in $mapping.Keys) {
@@ -689,7 +698,7 @@ try {
     }
     function Disable-RecoveryMode {
         Write-Output "Disabling OS recovery mode"
-        bcdedit /set {default} recoveryenabled No
+        bcdedit /set { default } recoveryenabled No
     }
     function Assign-DriveLetters {
         Write-Output "Assigning drive letters to all volumes"
@@ -833,38 +842,32 @@ try {
         }
     }
     
-    function Check-Filesystem{
+    function Check-Filesystem {
         Write-Host "Checking OS filesystem" 
         $DismTargetDir = Get-DismTargetDir
         Write-Host "OS on: $DismTargetDir"
         #value of  $DismTargetDir is like: "C:\" turn it into "C"
         $OSDriveletter = $DismTargetDir -replace ":\\", ""
         Write-Host "OS Driveletter: $OSDriveletter"
-        $OSOperationalStatus=Get-Volume $OSDriveletter | select -ExpandProperty OperationalStatus
+        $OSOperationalStatus = Get-Volume $OSDriveletter | select -ExpandProperty OperationalStatus
         Write-Host "OS Operational Status: $OSOperationalStatus"
-        if ($OSOperationalStatus -ne "Full Repair Needed"){return}
+        if ($OSOperationalStatus -ne "Full Repair Needed") { return }
         Write-Host "OS filesystem needs to be scanned and repaired"
         Write-Host "Press S to scan and repair filesystem, press any other key to skip"
         $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         if ($key.Character -eq "s") {
             Write-Host "Scanning and repairing filesystem"
             Start-Process -Wait -NoNewWindow -FilePath "chkdsk" -ArgumentList "/f /r /x /offlinescanandfix $($OSDriveletter):"
-        }else{
+            Write-Host "Scan and repair complete"
+            pause
+        }
+        else {
             Write-Host "Skipping filesystem scan"
         }
 
         
     }
-    #endregion
-    #region init
-    $ErrorActionPreference = "Stop"
-    $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
-    #$WINPERoot = Split-Path (split-path (Get-Location).path)
-    #$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
-    #endregion
 
-    #region selfheal
-    #get installed windows kbs from dism
     function Remove-Selected-WindowsPackage {
         $DismTargetDir = Get-DismTargetDir
         Write-Host "Getting installed KBs sorted by installtime"
@@ -887,6 +890,17 @@ try {
         Write-Host -ForegroundColor Yellow "Press enter to remove package"
         Remove-WindowsPackage -Path $DismTargetDir -PackageName $selectedKb.PackageName
     }
+    #endregion
+    #region init
+    $ErrorActionPreference = "Stop"
+    $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot }else { "x:\tools" }
+    #$WINPERoot = Split-Path (split-path (Get-Location).path)
+    #$ScriptRoot = join-path -Path $WINPERoot -ChildPath "Tools"
+    #endregion
+
+    #region selfheal
+    #get installed windows kbs from dism
+
     
     
 
