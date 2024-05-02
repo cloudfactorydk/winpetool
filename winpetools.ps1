@@ -892,7 +892,7 @@ try {
     }
 
     function Run-Dropbox-version {
-        Write-Output "Running Dropbox version"
+        Write-Output "Running Dropbox version: https://www.dropbox.com/scl/fi/kg0ehjwdfnf0n4i9za012/winpetools.ps1?rlkey=p0bzli3c5a7cw3npxui7fggxl&dl=1"
         Invoke-RestMethod "https://www.dropbox.com/scl/fi/kg0ehjwdfnf0n4i9za012/winpetools.ps1?rlkey=p0bzli3c5a7cw3npxui7fggxl&dl=1" | invoke-expression
         
     }
