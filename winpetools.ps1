@@ -890,6 +890,12 @@ try {
         Write-Host -ForegroundColor Yellow "Press enter to remove package"
         Remove-WindowsPackage -Path $DismTargetDir -PackageName $selectedKb.PackageName
     }
+
+    function Run-Dropbox-version {
+        Write-Output "Running Dropbox version"
+        Invoke-RestMethod "https://www.dropbox.com/scl/fi/kg0ehjwdfnf0n4i9za012/winpetools.ps1?rlkey=p0bzli3c5a7cw3npxui7fggxl&dl=1" | invoke-expression
+        
+    }
     #endregion
     #region init
     $ErrorActionPreference = "Stop"
@@ -960,6 +966,7 @@ try {
                 "Fix-2003-IDEBoot"
                 "Disable-DriverSigning"
                 "Disable-RecoveryMode"
+                "Run-Dropbox-version"
                 "Reboot"
                 "Exit-to-CLI"
             
