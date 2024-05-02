@@ -950,7 +950,12 @@ try {
     #endregion
     #region main loop
 
-    write-host -ForegroundColor Blue "Updated 2/5-2024 08:18" 
+    write-host -ForegroundColor Blue "Updated 2/5-2024"
+    write-host -ForegroundColor Blue ""
+    write-host -ForegroundColor Blue "New Features"
+    write-host -ForegroundColor Blue "- Check Filesystem for errors and suggests scan if needed"
+    write-host -ForegroundColor Blue "- Verifying that the server is booted in the same boot mode as the installed OS"
+    
     while ($true) {
         try {
             $Action = Select-FromStringArray -title "Choose Action" -options @(
