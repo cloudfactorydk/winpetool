@@ -944,7 +944,7 @@ try {
     #endregion
     #region main loop
 
-    write-host -ForegroundColor Blue "version 2" 
+    write-host -ForegroundColor Blue "Updated 2/5-2024 08:18" 
     while ($true) {
         try {
             $Action = Select-FromStringArray -title "Choose Action" -options @(
