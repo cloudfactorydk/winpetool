@@ -919,7 +919,7 @@ try {
     if (IsUEFI) {
         Write-Output "Guest OS is running in UEFI boot mode."
         Write-Output "Check if server is booted in UEFI mode"
-        if (!IsUEFIBooted) {
+        if (!(IsUEFIBooted)) {
             Write-Host -ForegroundColor DarkCyan "Guest OS is running in UEFI boot mode, but server is booted in Legacy mode."
             pause
         }
