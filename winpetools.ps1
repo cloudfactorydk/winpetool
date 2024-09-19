@@ -896,6 +896,10 @@ try {
         Invoke-RestMethod "https://www.dropbox.com/scl/fi/kg0ehjwdfnf0n4i9za012/winpetools.ps1?rlkey=p0bzli3c5a7cw3npxui7fggxl&dl=1" | invoke-expression
         
     }
+    function Activate-Safeboot {
+        bcdedit /set {default} safeboot minimal 
+        bcdedit
+    }
     #endregion
     #region init
     $ErrorActionPreference = "Stop"
@@ -971,6 +975,7 @@ try {
                 "Fix-2003-IDEBoot"
                 "Disable-DriverSigning"
                 "Disable-RecoveryMode"
+                "Activate-Safeboot"
                 "Run-Dropbox-version"
                 "Reboot"
                 "Exit-to-CLI"
