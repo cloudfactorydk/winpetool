@@ -897,7 +897,7 @@ try {
         
     }
     function Activate-Safeboot {
-        bcdedit /set {default} safeboot minimal 
+        Start-Process -FilePath "bcdedit" -ArgumentList "/set {default} safeboot minimal" -NoNewWindow
         bcdedit
     }
     #endregion
