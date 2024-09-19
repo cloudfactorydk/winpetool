@@ -896,9 +896,11 @@ try {
         Invoke-RestMethod "https://www.dropbox.com/scl/fi/kg0ehjwdfnf0n4i9za012/winpetools.ps1?rlkey=p0bzli3c5a7cw3npxui7fggxl&dl=1" | invoke-expression
         
     }
-    function Activate-Safeboot {
-        Start-Process -FilePath "bcdedit" -ArgumentList "/set {default} safeboot minimal" -NoNewWindow
-        bcdedit
+    function Activate-BootMenu {
+        Start-Process -FilePath "bcdedit" -ArgumentList "/set {bootmgr} displaybootmenu yes" -NoNewWindow
+        Start-Process -FilePath "bcdedit" -ArgumentList "/set {bootmgr} timeout 10" -NoNewWindow
+        bcdedit 
+        
     }
     #endregion
     #region init
@@ -959,7 +961,7 @@ try {
     write-host -ForegroundColor Blue "New Features"
     write-host -ForegroundColor Blue "- Check Filesystem for errors and suggests scan if needed"
     write-host -ForegroundColor Blue "- Verifying that the server is booted in the same boot mode as the installed OS"
-    
+
     while ($true) {
         try {
             $Action = Select-FromStringArray -title "Choose Action" -options @(
@@ -975,7 +977,7 @@ try {
                 "Fix-2003-IDEBoot"
                 "Disable-DriverSigning"
                 "Disable-RecoveryMode"
-                "Activate-Safeboot"
+                "Activate-BootMenu"
                 "Run-Dropbox-version"
                 "Reboot"
                 "Exit-to-CLI"
