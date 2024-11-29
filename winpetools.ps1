@@ -310,7 +310,7 @@ try {
     function Inject-VirtIOKBFor2008R2 {
         $PackagePath = join-path -Path $ScriptRoot -ChildPath "VirtIO2008R2KB"
         $DismTargetDir = Get-DismTargetDir
-        Dism /Image:$DismTargetDir /Add-Package /PackagePath:$PackagePath /IgnoreCheck /PreventPending 
+        Dism /Image:$DismTargetDir /Add-Package /PackagePath:$PackagePath /IgnoreCheck #/PreventPending 
     }
 
     function Exit-to-CLI {
