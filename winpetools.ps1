@@ -725,7 +725,30 @@ try {
         $DiskpartScript += "assign"
         $DiskpartScript += "list vol"
         $DiskpartScript += "exit"
-        $DiskpartScript | diskpart
+
+        $Job = Start-Job -ScriptBlock {
+            param($DiskpartScript)
+            $DiskpartScript | diskpart
+            
+        }
+
+        $Timeout = 60
+        $EndTime = (Get-Date).AddSeconds($Timeout)
+        while ($Job.State -eq "Running" -and (Get-Date) -lt $EndTime) {
+            $Job | Receive-Job
+            Start-Sleep -Milliseconds 100
+        }
+            
+        if ($Job.State -eq "Running") {
+            Write-Warning "Diskpart job timed out. Maybe not all volumes are assigned a driveletter."
+            Start-Sleep -s 5
+            $Job | Stop-Job
+            $Job | Remove-Job
+        }
+        else {
+            $Job | Remove-Job
+        }
+        
     }
     function Check-BrokenEFIBootPartition {
 
